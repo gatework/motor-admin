@@ -28,7 +28,7 @@
       <span
         class="ms-2 text-white"
         style="font-size: 15px; font-weight: 500;"
-      >Settings</span>
+      >{{ t('settings.header.settings') }}</span>
     </div>
 
     <a
@@ -39,7 +39,7 @@
         class="ion ion-md-arrow-round-back"
       /><span
         style="vertical-align: middle;"
-      >Admin Panel</span></span>
+      >{{ t('settings.header.adminPanel') }}</span></span>
     </a>
   </div>
   <div
@@ -84,7 +84,7 @@
         <a
           href="https://github.com/motor-admin/motor-admin"
           target="_blank"
-        >Motor Admin v{{ version }}</a>
+        >{{ t('settings.header.motorAdmin') }} v{{ version }}</a>
       </div>
     </div>
   </div>
@@ -92,9 +92,11 @@
 
 <script>
 import { basePath, version } from 'application/scripts/configs'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'SettingsPage',
+  mixins: [localeMixin],
   computed: {
     basePath: () => basePath,
     version: () => version,
@@ -103,13 +105,13 @@ export default {
     },
     tabs () {
       return [
-        { title: 'General', to: { name: 'general_settings' } },
-        { title: 'Users', to: { name: 'users_settings' } },
-        { title: 'Roles', to: { name: 'roles_settings' } },
-        { title: 'Database', to: { name: 'database_settings' } },
-        { title: 'Email', to: { name: 'email_settings' } },
-        { title: 'Storage', to: { name: 'storage_settings' } },
-        { title: 'Other', to: { name: 'other_settings' } }
+        { title: this.t('settings.tabs.general'), to: { name: 'general_settings' } },
+        { title: this.t('settings.tabs.users'), to: { name: 'users_settings' } },
+        { title: this.t('settings.tabs.roles'), to: { name: 'roles_settings' } },
+        { title: this.t('settings.tabs.database'), to: { name: 'database_settings' } },
+        { title: this.t('settings.tabs.email'), to: { name: 'email_settings' } },
+        { title: this.t('settings.tabs.storage'), to: { name: 'storage_settings' } },
+        { title: this.t('settings.tabs.other'), to: { name: 'other_settings' } }
       ]
     }
   }
@@ -117,7 +119,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'application/styles/variables';
+@use 'application/styles/variables' as *;
 
 .header {
   background-color: $primary-color;

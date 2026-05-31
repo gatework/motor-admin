@@ -2,26 +2,26 @@
   <div class="setup-container">
     <div class="text-center">
       <h1 class="py-5">
-        Motor Admin Setup 👋
+        {{ t('settings.setupPage.pageTitle') }}
       </h1>
     </div>
     <Card class="mb-2">
       <UserForm
         v-if="step === 'user'"
         :mode="'setup'"
-        :submit-text="`Let's go!`"
+        :submit-text="t('settings.setupPage.start')"
         @success="onUserSuccess"
       />
       <DatabaseForm
         v-if="step === 'database'"
         :is-default-setup="true"
-        :submit-text="'Connect to Database'"
+        :submit-text="t('settings.setupPage.connectToDatabase')"
         @success="onDatabaseSuccess"
       />
       <SubscribeForm
         v-if="step === 'subscribe'"
         :email="currentUser.email"
-        :submit-text="'Subscribe'"
+        :submit-text="t('settings.setupPage.subscribe')"
         @success="onSubscribeSuccess"
       />
     </Card>
@@ -31,7 +31,7 @@
         href="#"
         @click.prevent="onSkip"
       >
-        Skip this step
+        {{ t('settings.setupPage.skipStep') }}
       </a>
     </div>
     <div
@@ -53,6 +53,7 @@ import DatabaseForm from 'application/components/database_form'
 import SubscribeForm from 'application/components/subscribe_form'
 import { version, basePath } from 'application/scripts/configs'
 import { currentUser, setCurrentUser } from 'application/scripts/current_user'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'SetupPage',
@@ -61,6 +62,7 @@ export default {
     SubscribeForm,
     DatabaseForm
   },
+  mixins: [localeMixin],
   data () {
     return {
       step: 'user'

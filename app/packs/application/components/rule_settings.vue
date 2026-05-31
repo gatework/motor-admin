@@ -3,7 +3,7 @@
     <FormItem
       v-if="subject.class_name === 'Motor::Note'"
       prop="conditions"
-      label="Permitted tags"
+      :label="t('settings.rulesPage.permittedTagsLabel')"
     >
       <TagsSelect
         :model-value="dataRule.conditions.find((e) => e.key === 'tags.name')?.value"
@@ -15,7 +15,7 @@
     <FormItem
       v-if="isTagsResource"
       prop="conditions"
-      label="Permitted tags"
+      :label="t('settings.rulesPage.permittedTagsLabel')"
     >
       <TagsSelect
         v-model="dataRule.conditions[0].value"
@@ -25,7 +25,7 @@
     <template v-else>
       <FormItem
         prop="conditions"
-        label="Filters"
+        :label="t('settings.rulesPage.filterLabel')"
       >
         <RuleFilterItem
           v-for="(condition, index) in filteredConditions"
@@ -40,13 +40,13 @@
           icon="md-add"
           @click="addFilter"
         >
-          Add Filter
+          {{ t('settings.rulesPage.addFilter') }}
         </VButton>
       </FormItem>
 
       <FormItem
         prop="attributes"
-        label="Permitted fields"
+        :label="t('settings.rulesPage.permittedFieldsLabel')"
       >
         <MSelect
           v-model="dataRule.attributes"
@@ -63,7 +63,7 @@
       type="primary"
       @click="$emit('submit', normalizedRuleData)"
     >
-      OK
+      {{ t('settings.common.ok') }}
     </VButton>
   </VForm>
 </template>
@@ -71,6 +71,7 @@
 <script>
 import RuleFilterItem from './rule_filter_item'
 import TagsSelect from './tag_select'
+import localeMixin from 'application/scripts/locale_mixin'
 
 const defaultRuleParams = {
   subjects: [],
@@ -85,6 +86,7 @@ export default {
     RuleFilterItem,
     TagsSelect
   },
+  mixins: [localeMixin],
   props: {
     rule: {
       type: Object,
@@ -115,7 +117,7 @@ export default {
       return [
         {
           name: 'author_id',
-          display_name: 'Author ID',
+          display_name: this.t('settings.rulesPage.authorIdLabel'),
           access_type: 'read_only'
         }
       ]

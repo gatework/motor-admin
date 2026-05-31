@@ -4,9 +4,10 @@
     class="mb-3"
   >
     <DatabaseForm
-      :submit-text="'Update'"
+      :submit-text="t('settings.databasePage.submitUpdate')"
       :is-default-setup="true"
       @submit="handleUpdate"
+      @error="showErrorMessage"
     />
   </Card>
   <Card
@@ -27,7 +28,7 @@
             icon="md-trash"
             @click="remove(index)"
           >
-            Remove
+            {{ t('settings.databasePage.remove') }}
           </VButton>
         </div>
       </div>
@@ -39,7 +40,7 @@
     >
       <FormItem
         prop="url"
-        label="URL"
+        :label="t('settings.databasePage.urlLabel')"
         class="col-12 mb-2"
         :rules="[{required: true}]"
       >
@@ -47,7 +48,7 @@
           :model-value="config.url.replace(/\/\/.*?@/, '//xxxxx:xxxxx@')"
           type="text"
           size="large"
-          placeholder="postgresql://username:password@localhost:5432/db_name"
+          :placeholder="t('settings.databasePage.urlPlaceholder')"
         />
       </FormItem>
       <VButton
@@ -56,14 +57,15 @@
         long
         @click="config.showFullForm = true"
       >
-        Expand
+        {{ t('settings.databasePage.expand') }}
       </VButton>
     </VForm>
     <DatabaseForm
       v-else
       :configs="config"
-      :submit-text="'Update'"
+      :submit-text="t('settings.databasePage.submitUpdate')"
       @submit="handleUpdate"
+      @error="showErrorMessage"
     />
   </Card>
   <VButton
@@ -74,7 +76,7 @@
     @click="openAddDatabaseModal"
   >
     <Icon type="md-add" />
-    Add Database
+    {{ t('settings.databasePage.addDatabase') }}
   </VButton>
   <Spin
     v-if="!isLoaded"
@@ -84,6 +86,8 @@
 
 <script>
 import api from 'application/api'
+import { errorMessage } from 'application/scripts/error_messages'
+import localeMixin from 'application/scripts/locale_mixin'
 
 import DatabaseForm from 'application/components/database_form'
 
@@ -92,6 +96,7 @@ export default {
   components: {
     DatabaseForm
   },
+  mixins: [localeMixin],
   data () {
     return {
       isLoaded: false,
@@ -106,27 +111,28 @@ export default {
   methods: {
     loadConfigs () {
       return api.get('encrypted_configs/database.credentials').then((result) => {
-        this.configs = result.data.data.value
+        this.configs = result.data.data.value || []
       }).catch((error) => {
-        console.error(error)
+        this.showErrorMessage(error)
       })
     },
     openAddDatabaseModal () {
       this.$Modal.open(DatabaseForm, {
         withName: true,
+        submitText: this.t('settings.databasePage.submitCreate'),
         onSubmit: (data) => {
-          this.handleUpdate(data).then(() => {
+          this.handleUpdate(data, { rethrow: true }).then(() => {
             this.$Modal.remove()
           })
         }
       }, {
-        title: 'Add Database',
+        title: this.t('settings.databasePage.createDatabase'),
         closable: true
       })
     },
     remove (index) {
       this.$Dialog.confirm({
-        title: 'Are you sure?',
+        title: this.t('settings.databasePage.areYouSure'),
         closable: true,
         onOk: () => {
           const dataConfigs = [...this.configs]
@@ -138,18 +144,19 @@ export default {
               value: dataConfigs.map((config) => ({ name: config.name, url: config.url }))
             }
           }).then((result) => {
-            this.$Message.info('Database credentials have been removed')
+            this.$Message.info(this.t('settings.databasePage.removed'))
 
             this.configs = result.data.data.value
           }).catch((error) => {
-            console.error(error)
+            this.showErrorMessage(error)
           })
         }
       })
     },
-    handleUpdate (configs) {
+    handleUpdate (configs, options = {}) {
       const dataConfigs = [...this.configs]
       const index = dataConfigs.findIndex((c) => c.name === configs.name)
+      const { rethrow = false } = options
 
       if (index === -1) {
         dataConfigs.push(configs)
@@ -163,16 +170,19 @@ export default {
           value: dataConfigs.map((config) => ({ name: config.name, url: config.url, schema_search_path: config.schema_search_path }))
         }
       }).then((result) => {
-        this.$Message.info('Database credentials have been updated successfuly')
+        this.$Message.info(this.t('settings.databasePage.updatedSuccess'))
 
         this.configs = result.data.data.value
       }).catch((error) => {
-        if (error.response?.data?.errors) {
-          this.$Message.error(error.response.data.errors.join('\n'))
-        } else {
-          console.error(error)
+        this.showErrorMessage(error)
+
+        if (rethrow) {
+          throw error
         }
       })
+    },
+    showErrorMessage (error) {
+      this.$Message.error(errorMessage(error))
     }
   }
 }

@@ -7,7 +7,10 @@ aliases = {
   'sync' => 'config:sync',
   'load' => 'config:load',
   'reload' => 'config:reload',
-  'dump' => 'config:dump'
+  'dump' => 'config:dump',
+  'auth' => 'authorization:generate',
+  'authorize' => 'authorization:generate',
+  'token' => 'authorization:generate'
 }
 
 command = ARGV.shift unless ARGV.first.to_s.start_with?('-')
@@ -25,7 +28,7 @@ elsif ENV['SECRET_KEY_BASE'].to_s.empty?
   require 'securerandom'
 
   default_env_content = <<~ENV
-    BASE_PATH=/
+    BASE_PATH=/admin
     DATABASE_URL= # Service database URL
     SECRET_KEY_BASE=#{SecureRandom.hex(64)}
     HOST=
@@ -82,5 +85,9 @@ else
     Motor::ConfigsCli.reload
   when 'config:dump'
     Motor::ConfigsCli.dump
+  when 'authorization:generate'
+    require_relative '../lib/motor/authorization_cli'
+
+    Motor::AuthorizationCli.generate(ARGV)
   end
 end

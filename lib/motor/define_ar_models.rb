@@ -224,12 +224,12 @@ module Motor
         column.name == 'id' || column.name.in?(TIMESTAMP_COLUMNS)
       end
 
-      return unless join_columns.size.in?([2, 3])
-      return if model.reflections.size != 2
+      return false unless join_columns.size.in?([2, 3])
+      return false if model.reflections.size != 2
 
       belongs_to_reflections = model.reflections.values.select(&:belongs_to?)
 
-      return if belongs_to_reflections.size != 2
+      return false if belongs_to_reflections.size != 2
 
       true
     end

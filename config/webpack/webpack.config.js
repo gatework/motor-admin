@@ -1,9 +1,16 @@
-const { webpackConfig, merge } = require('shakapacker')
+const path = require('path')
+const { generateWebpackConfig, merge } = require('shakapacker')
 const { VueLoaderPlugin } = require('vue-loader')
 
-const configs = merge({
+const rootNodeModules = path.resolve(__dirname, '../../node_modules')
+
+const vueConfig = {
   resolve: {
-    extensions: ['.vue', '.css', '.scss']
+    alias: {
+      '@vue': path.join(rootNodeModules, '@vue'),
+      vue: path.join(rootNodeModules, 'vue')
+    },
+    extensions: ['.vue']
   },
   module: {
     rules: [
@@ -14,30 +21,22 @@ const configs = merge({
             loader: 'vue-loader'
           }
         ]
-      },
-      {
-        test: /\.css$/,
-        use: [
-          'css-loader',
-          'postcss-loader',
-          'sass-loader'
-        ]
-      },
-      {
-        test: /\.scss$/,
-        use: [
-          'postcss-loader',
-          'sass-loader'
-        ]
       }
     ]
   },
   plugins: [
     new VueLoaderPlugin()
   ]
-}, webpackConfig)
+}
+
+const configs = merge(vueConfig, generateWebpackConfig())
+
+if (process.env.NODE_ENV === 'test') {
+  configs.mode = 'none'
+}
 
 configs.optimization.runtimeChunk = false
 configs.optimization.splitChunks = false
+configs.performance = { hints: false }
 
 module.exports = configs

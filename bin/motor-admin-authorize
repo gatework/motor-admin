@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ARGV.unshift('auth')
+
+load File.expand_path('motor-admin', __dir__)

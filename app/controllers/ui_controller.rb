@@ -14,7 +14,7 @@ class UiController < ApplicationController
   private
 
   def set_i18n_locale
-    I18n.locale = Motor::Config.find_by(key: 'language')&.value || I18n.locale
+    I18n.locale = Motor::Config.find_by(key: 'language')&.value.presence || :'zh-CN'
   end
 
   def app_data_attributes

@@ -2,13 +2,15 @@
   <MSelect
     :model-value="modelValue"
     multiple
-    :placeholder="'Select Actions'"
+    :placeholder="t('settings.rulesPage.actionsPlaceholder')"
     :options="actions"
     @update:model-value="handleSelect"
   />
 </template>
 
 <script>
+import localeMixin from 'application/scripts/locale_mixin'
+
 const actionsValueMap = {
   edit: 'update',
   remove: 'destroy'
@@ -16,6 +18,7 @@ const actionsValueMap = {
 
 export default {
   name: 'ActionSelect',
+  mixins: [localeMixin],
   props: {
     modelValue: {
       type: [Array],
@@ -39,8 +42,8 @@ export default {
     },
     subjectActions () {
       return [
-        { value: 'manage', label: 'Manage' },
-        { value: 'read', label: 'Read' },
+        { value: 'manage', label: this.t('settings.rulesPage.actionManage') },
+        { value: 'read', label: this.t('settings.rulesPage.actionRead') },
         ...this.subject.actions.map((action) => {
           return { value: actionsValueMap[action.name] || action.name, label: action.display_name }
         })
@@ -48,11 +51,11 @@ export default {
     },
     defaultActions () {
       return [
-        { value: 'manage', label: 'Manage' },
-        { value: 'read', label: 'Read' },
-        { value: 'create', label: 'Create' },
-        { value: 'update', label: 'Edit' },
-        { value: 'destroy', label: 'Remove' }
+        { value: 'manage', label: this.t('settings.rulesPage.actionManage') },
+        { value: 'read', label: this.t('settings.rulesPage.actionRead') },
+        { value: 'create', label: this.t('settings.rulesPage.actionCreate') },
+        { value: 'update', label: this.t('settings.rulesPage.actionUpdate') },
+        { value: 'destroy', label: this.t('settings.rulesPage.actionDestroy') }
       ]
     }
   },

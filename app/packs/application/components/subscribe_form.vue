@@ -8,7 +8,7 @@
   >
     <div class="row">
       <div class="col-12 mb-3 text-center">
-        Subscribe to receive newsletters with feature updates and new version releases
+        {{ t('settings.subscribePage.description') }}
       </div>
       <FormItem
         prop="email"
@@ -21,7 +21,7 @@
           name="email"
           :disabled="isSubmitted"
           size="large"
-          placeholder="example@example.com"
+          :placeholder="t('settings.subscribePage.emailPlaceholder')"
         />
       </FormItem>
     </div>
@@ -32,7 +32,7 @@
       long
       @click="handleSubmit"
     >
-      {{ submitText }}
+      {{ displaySubmitText }}
     </VButton>
     <Spin
       v-if="isLoading"
@@ -44,15 +44,17 @@
     <Icon
       type="md-checkmark-circle text-success"
     />
-    {{ submittedEmail ? `${submittedEmail} has` : 'You have' }} been subscribed for newsletters
+    {{ submittedEmail ? t('settings.subscribePage.subscribedMessageWithEmail', '', { email: submittedEmail }) : t('settings.subscribePage.subscribedMessage') }}
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'SubscribeForm',
+  mixins: [localeMixin],
   props: {
     email: {
       type: String,
@@ -62,7 +64,7 @@ export default {
     submitText: {
       type: String,
       required: false,
-      default: 'Submit'
+      default: ''
     }
   },
   emits: ['success', 'error'],
@@ -74,6 +76,9 @@ export default {
     }
   },
   computed: {
+    displaySubmitText () {
+      return this.submitText || this.t('settings.subscribePage.submit')
+    },
     rules () {
       return {
         email: [{ required: true, type: 'email' }]
@@ -109,7 +114,6 @@ export default {
 
         this.$emit('success', result.data.data)
       }).catch((error) => {
-        console.error(error)
         this.$emit('error', error)
       }).finally(() => {
         this.isSubmitted = true

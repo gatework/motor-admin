@@ -1,4 +1,5 @@
-<% if ENV['DATABASE_TYPE'] == 'mysql' %>
+<% database_type = ENV.fetch('DATABASE_TYPE', 'sqlite') %>
+<% if database_type == 'mysql' %>
 common: &common
   adapter: mysql2
   encoding: utf8mb4
@@ -6,11 +7,7 @@ common: &common
   password:
   host: 127.0.0.1
   port: 3306
-<% elsif ENV['DATABASE_TYPE'] == 'sqlite' %>
-common: &common
-  adapter: sqlite3
-  timeout: 30000
-<% else %>
+<% elsif %w[postgres postgresql].include?(database_type) %>
 common: &common
   adapter: postgresql
   encoding: unicode
@@ -20,15 +17,31 @@ common: &common
   username: postgres
   password: postgres
   host: localhost
+<% else %>
+common: &common
+  adapter: sqlite3
+  timeout: 30000
 <% end %>
 
 development:
   <<: *common
+<% if database_type == 'mysql' %>
   database: motor_edge_dev
+<% elsif %w[postgres postgresql].include?(database_type) %>
+  database: motor_edge_dev
+<% else %>
+  database: db/development.sqlite3
+<% end %>
 
 test:
   <<: *common
+<% if database_type == 'mysql' %>
   database: motor_edge_test
+<% elsif %w[postgres postgresql].include?(database_type) %>
+  database: motor_edge_test
+<% else %>
+  database: db/test.sqlite3
+<% end %>
 
 production:
 <% if ENV['DATABASE_URL'].to_s.empty? %>

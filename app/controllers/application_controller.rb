@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
   end
 
   def new_setup?
-    current_admin_user.nil? && Motor::AdminUser.count.zero?
+    current_admin_user.nil? && Motor::AdminUser.none?
   end
 
   def setup_path?

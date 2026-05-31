@@ -5,7 +5,8 @@ module Motor
     has_many :admin_user_roles, dependent: :destroy
     has_many :admin_users, through: :admin_user_roles
 
-    serialize :rules, Motor::HashSerializer
+    attribute :rules, default: -> { [] }
+    serialize :rules, coder: Motor::HashSerializer
 
     DEFAULT_RULE = {
       actions: [:manage],

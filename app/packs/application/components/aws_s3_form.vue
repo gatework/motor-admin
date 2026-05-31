@@ -8,7 +8,7 @@
     <div class="row">
       <FormItem
         prop="access_key_id"
-        label="Access key ID"
+        :label="t('settings.storagePage.awsAccessKeyIdLabel')"
         class="col-12 col-md-6"
       >
         <VInput
@@ -18,47 +18,47 @@
       </FormItem>
       <FormItem
         prop="secret_access_key"
-        label="Secret access key"
+        :label="t('settings.storagePage.awsSecretAccessKeyLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.secret_access_key"
           type="password"
-          placeholder="**********"
+          :placeholder="t('settings.storagePage.awsSecretAccessKeyPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="region"
-        label="Region"
+        :label="t('settings.storagePage.awsRegionLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.region"
           type="text"
-          placeholder="us-east-1"
+          :placeholder="t('settings.storagePage.awsRegionPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="bucket"
-        label="Bucket"
+        :label="t('settings.storagePage.awsBucketLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.bucket"
-          placeholder="s3-bucket-name"
+          :placeholder="t('settings.storagePage.awsBucketPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="endpoint"
-        label="Endpoint"
+        :label="t('settings.storagePage.awsEndpointLabel')"
         class="col-12"
       >
         <VInput
           v-model="configs.endpoint"
           type="text"
-          placeholder=""
+          :placeholder="t('settings.storagePage.awsEndpointPlaceholder')"
         />
-        <small>Use custom endoint for S3 compatible API like MinIO. Leave it blank for AWS S3</small>
+        <small>{{ t('settings.storagePage.awsEndpointHint') }}</small>
       </FormItem>
     </div>
     <VButton
@@ -68,7 +68,7 @@
       long
       @click="handleSubmit"
     >
-      Submit
+      {{ displaySubmitText }}
     </VButton>
     <Spin
       v-if="isLoading"
@@ -79,9 +79,11 @@
 
 <script>
 import api from 'application/api'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'AwsS3Form',
+  mixins: [localeMixin],
   props: {
     configs: {
       type: Object,
@@ -102,6 +104,9 @@ export default {
         region: [{ required: true }],
         bucket: [{ required: true }]
       }
+    },
+    displaySubmitText () {
+      return this.t('settings.storagePage.updateSubmit')
     }
   },
   methods: {
@@ -119,7 +124,6 @@ export default {
       }).then((result) => {
         this.$emit('success', result.data.data)
       }).catch((error) => {
-        console.error(error)
         this.$emit('error', error)
       }).finally(() => {
         this.isLoading = false

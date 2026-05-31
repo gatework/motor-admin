@@ -18,16 +18,17 @@ Bundler.require(*Rails.groups)
 module MotorAdmin
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 8.1
 
-    config.autoload_paths << Rails.root.join('lib')
-    config.eager_load_paths << Rails.root.join('lib')
+    config.autoload_lib(ignore: %w[assets tasks])
 
     if ENV['RAILS_ENV'] == 'production'
-      config.eager_load_paths << "#{Gem.loaded_specs['motor-admin'].full_gem_path}/app/controllers/concerns"
+      motor_admin_spec = Gem.loaded_specs.fetch('motor-admin-pro') { Gem.loaded_specs.fetch('motor-admin') }
+
+      config.eager_load_paths << "#{motor_admin_spec.full_gem_path}/app/controllers/concerns"
       config.eager_load_paths << "#{Gem.loaded_specs['activestorage'].full_gem_path}/app/controllers/concerns"
 
-      require_relative './environments/production'
+      require_relative 'environments/production'
     end
 
     # Configuration for the application, engines, and railties goes here.
@@ -37,7 +38,5 @@ module MotorAdmin
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-
-    config.active_record.partial_inserts = true
   end
 end

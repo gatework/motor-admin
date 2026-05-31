@@ -16,10 +16,10 @@ module Api
     end
 
     def create
-      if @admin_user.save!
+      if @admin_user.save
         render json: serialized_user_data(@admin_user)
       else
-        render json: { errors: @admin_user.errors.as_json }, status: :unprocessable_entity
+        render json: { errors: @admin_user.errors.as_json }, status: :unprocessable_content
       end
     end
 
@@ -27,7 +27,7 @@ module Api
       if @admin_user.update(admin_user_params)
         render json: serialized_user_data(@admin_user)
       else
-        render json: { errors: @admin_user.errors.as_json }, status: :unprocessable_entity
+        render json: { errors: @admin_user.errors.as_json }, status: :unprocessable_content
       end
     end
 
@@ -38,7 +38,7 @@ module Api
     end
 
     def reset_password
-      @admin_user = Motor::AdminUser.find(params[:admin_user_id])
+      @admin_user = Motor::AdminUser.find(params.expect(:admin_user_id))
 
       authorize!(:manage, @admin_user)
 
@@ -67,7 +67,7 @@ module Api
     end
 
     def admin_user_params
-      params.require(:admin_user).permit(:email, :first_name, :last_name, :password, role_ids: [])
+      params.expect(admin_user: [:email, :first_name, :last_name, :password, { role_ids: [] }])
     end
   end
 end

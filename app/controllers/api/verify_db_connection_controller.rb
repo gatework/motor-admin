@@ -2,7 +2,8 @@
 
 module Api
   class VerifyDbConnectionController < ApiBaseController
-    InvalidUrl = Class.new(StandardError)
+    class InvalidUrl < StandardError
+    end
 
     def create
       authorize!(:manage, :all)

@@ -1,11 +1,27 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  devise_for :admin_users, class_name: 'Motor::AdminUser', path: ENV.fetch('BASE_PATH', '/')
+  base_path = ENV.fetch('BASE_PATH', '/admin').presence || '/admin'
+  base_path = "/#{base_path}" unless base_path.start_with?('/')
+  base_path = base_path.delete_suffix('/') unless base_path == '/'
+
+  root to: redirect(base_path) unless base_path == '/'
+
+  devise_for :admin_users, class_name: 'Motor::AdminUser', path: base_path
 
   resources :impersonate, only: %i[show], param: 'token'
 
-  scope ENV.fetch('BASE_PATH', '/'), as: :admin do
+  get "#{base_path}/assets/*filename", to: 'motor/assets#show', as: :motor_asset, format: false
+
+  if base_path != '/'
+    get "#{base_path}#{base_path}/settings",
+        to: redirect(status: 301) { |_params, _request| "#{base_path}/settings" }
+
+    get "#{base_path}#{base_path}/settings/*settings_path",
+        to: redirect(status: 301) { |params, _request| "#{base_path}/settings/#{params[:settings_path]}" }
+  end
+
+  scope base_path, as: :admin do
     with_options controller: 'ui' do
       resource :setup, only: %i[show]
 
@@ -33,10 +49,10 @@ Rails.application.routes.draw do
   end
 
   if ENV['MOTOR_PUBLIC_ACCESS'].to_s == 'true'
-    mount Motor::Admin => ENV.fetch('BASE_PATH', '/')
+    mount Motor::Admin => base_path
   else
     authenticate :admin_user do
-      mount Motor::Admin => ENV.fetch('BASE_PATH', '/')
+      mount Motor::Admin => base_path
     end
   end
 end

@@ -8,56 +8,56 @@
     <div class="row">
       <FormItem
         prop="host"
-        label="Host"
+        :label="t('settings.emailPage.hostLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.host"
           type="text"
-          placeholder="smtp.example.com"
+          :placeholder="t('settings.emailPage.hostPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="port"
-        label="Port"
+        :label="t('settings.emailPage.portLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.port"
           type="text"
-          placeholder="587"
+          :placeholder="t('settings.emailPage.portPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="username"
-        label="Username"
+        :label="t('settings.emailPage.usernameLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.username"
           type="text"
-          placeholder="admin"
+          :placeholder="t('settings.emailPage.usernamePlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="password"
-        label="Password"
+        :label="t('settings.emailPage.passwordLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.password"
           type="password"
-          placeholder="**********"
+          :placeholder="t('settings.emailPage.passwordPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="address"
-        label="Send from"
+        :label="t('settings.emailPage.addressLabel')"
         class="col-12"
       >
         <VInput
           v-model="configs.address"
-          placeholder="user@example.com"
+          :placeholder="t('settings.emailPage.addressPlaceholder')"
         />
       </FormItem>
     </div>
@@ -68,16 +68,18 @@
       long
       @click="handleSubmit"
     >
-      {{ submitText }}
+      {{ displaySubmitText }}
     </VButton>
   </VForm>
 </template>
 
 <script>
 import api from 'application/api'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'EmailForm',
+  mixins: [localeMixin],
   props: {
     configs: {
       type: Object,
@@ -86,7 +88,7 @@ export default {
     submitText: {
       type: String,
       required: false,
-      default: 'Submit'
+      default: ''
     }
   },
   emits: ['success', 'error'],
@@ -96,6 +98,9 @@ export default {
     }
   },
   computed: {
+    displaySubmitText () {
+      return this.submitText || this.t('settings.emailPage.submitUpdate')
+    },
     rules () {
       return {
         host: [{ required: true }],
@@ -118,7 +123,6 @@ export default {
       }).then((result) => {
         this.$emit('success', result.data.data)
       }).catch((error) => {
-        console.error(error)
         this.$emit('error', error)
       }).finally(() => {
         this.isLoading = false

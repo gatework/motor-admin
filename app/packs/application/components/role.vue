@@ -30,9 +30,12 @@
 
 <script>
 import RoleForm from './role_form'
+import { errorMessage } from 'application/scripts/error_messages'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'Role',
+  mixins: [localeMixin],
   props: {
     role: {
       type: Object,
@@ -45,18 +48,22 @@ export default {
       this.$Drawer.open(RoleForm, {
         role: this.role,
         mode: 'update',
+        submitText: this.t('settings.rolesPage.updateSubmit'),
         onRemove: () => {
           this.$Drawer.remove()
 
           this.$emit('update')
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
           this.$Drawer.remove()
 
           this.$emit('update')
+        },
+        onError: (error) => {
+          this.$Message.error(errorMessage(error))
         }
       }, {
-        title: `Edit Role: ${this.role.name}`,
+        title: this.t('settings.rolesPage.editTitle', '', { name: this.role.name }),
         className: 'drawer-no-bottom-padding',
         closable: true
       })

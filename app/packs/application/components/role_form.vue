@@ -10,18 +10,18 @@
     <div class="row">
       <FormItem
         prop="name"
-        label="Name"
+        :label="t('settings.rolesPage.nameLabel')"
       >
         <VInput
           v-model="value.name"
           type="text"
-          placeholder="Role Name"
+          :placeholder="t('settings.rolesPage.namePlaceholder')"
         />
       </FormItem>
     </div>
     <FormItem
       prop="rules"
-      label="Permissions"
+      :label="t('settings.rolesPage.permissionsLabel')"
       class="mb-1"
     >
       <RuleItem
@@ -38,7 +38,7 @@
       icon="md-add"
       @click="addNewRule"
     >
-      Add
+      {{ t('settings.rolesPage.addRule') }}
     </VButton>
     <VButton
       v-if="mode === 'create'"
@@ -48,7 +48,7 @@
       long
       @click="handleSubmit"
     >
-      {{ submitText }}
+      {{ displaySubmitText }}
     </VButton>
     <Spin
       v-if="isLoading"
@@ -66,13 +66,13 @@
       ghost
       @click="remove"
     >
-      Remove
+      {{ t('settings.rolesPage.remove') }}
     </VButton>
     <VButton
       type="primary"
       @click="handleSubmit"
     >
-      OK
+      {{ t('settings.rolesPage.submitButton') }}
     </VButton>
   </div>
 </template>
@@ -80,12 +80,14 @@
 <script>
 import api from 'application/api'
 import RuleItem from './rule_item'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'RoleForm',
   components: {
     RuleItem
   },
+  mixins: [localeMixin],
   props: {
     role: {
       type: Object,
@@ -105,7 +107,7 @@ export default {
     submitText: {
       type: String,
       required: false,
-      default: 'Submit'
+      default: ''
     }
   },
   emits: ['success', 'error', 'remove'],
@@ -117,6 +119,9 @@ export default {
     }
   },
   computed: {
+    displaySubmitText () {
+      return this.submitText || this.t('settings.rolesPage.addRoleSubmit')
+    },
     apiPath () {
       return {
         create: 'roles',
@@ -165,23 +170,24 @@ export default {
       if (this.mode === 'update') {
         this.submit().then((result) => {
           Object.assign(this.role, result.data.data)
+        }).catch((error) => {
+          this.$emit('error', error)
         })
       }
     },
     remove () {
       this.$Dialog.confirm({
-        title: 'Are you sure?',
+        title: this.t('settings.rolesPage.areYouSure'),
         closable: true,
         onOk: () => {
           this.isRemoveLoading = true
 
-          api.delete(this.apiPath).then((result) => {
+          api.delete(this.apiPath).then(() => {
             this.$emit('remove')
           }).catch((error) => {
-            console.error(error)
             this.$emit('error', error)
           }).finally(() => {
-            this.isRemoveLoading = true
+            this.isRemoveLoading = false
           })
         }
       })
@@ -194,7 +200,6 @@ export default {
           this.submit().then((result) => {
             this.$emit('success', result.data.data)
           }).catch((error) => {
-            console.error(error)
             this.$emit('error', error)
           }).finally(() => {
             this.isLoading = false

@@ -8,8 +8,8 @@ class UpgradeMotorApiActions < ActiveRecord::Migration[7.0]
 
       encrypts :credentials
 
-      serialize :credentials, Motor::HashSerializer
-      serialize :preferences, Motor::HashSerializer
+      serialize :credentials, coder: Motor::HashSerializer
+      serialize :preferences, coder: Motor::HashSerializer
 
       attribute :preferences, default: -> { ActiveSupport::HashWithIndifferentAccess.new }
       attribute :credentials, default: -> { ActiveSupport::HashWithIndifferentAccess.new }
@@ -20,7 +20,7 @@ class UpgradeMotorApiActions < ActiveRecord::Migration[7.0]
     @_MotorForm ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_forms'
 
-      serialize :preferences, Motor::HashSerializer
+      serialize :preferences, coder: Motor::HashSerializer
     end
   end
 
@@ -28,12 +28,12 @@ class UpgradeMotorApiActions < ActiveRecord::Migration[7.0]
     @_MotorResource ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_resources'
 
-      serialize :preferences, Motor::HashSerializer
+      serialize :preferences, coder: Motor::HashSerializer
     end
   end
 
   def up
-    _MotorResource.all.each do |resource|
+    _MotorResource.find_each do |resource|
       resource.preferences.fetch(:actions, []).each do |action|
         next unless action[:action_type] == 'api'
 

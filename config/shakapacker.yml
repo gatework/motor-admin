@@ -1,0 +1,54 @@
+# Note: You must restart bin/shakapacker-dev-server for changes to take effect
+
+default: &default
+  source_path: app/packs
+  source_entry_path: entrypoints
+  nested_entries: false
+
+  public_root_path: public
+  public_output_path: packs
+  cache_path: tmp/shakapacker
+  webpack_compile_output: true
+  shakapacker_precompile: true
+
+  additional_paths: []
+
+  cache_manifest: false
+
+  assets_bundler: webpack
+  assets_bundler_config_path: config/webpack
+  javascript_transpiler: babel
+  ensure_consistent_versioning: true
+
+  compiler_strategy: digest
+
+development:
+  <<: *default
+  compile: false
+  compiler_strategy: mtime
+
+  dev_server:
+    host: localhost
+    port: 3035
+    hmr: false
+    inline_css: true
+    client:
+      overlay: true
+    compress: true
+    allowed_hosts: "all"
+    pretty: true
+    headers:
+      'Access-Control-Allow-Origin': '*'
+    static:
+      watch:
+        ignored: '**/node_modules/**'
+
+test:
+  <<: *default
+  compile: true
+  public_output_path: packs-test
+
+production:
+  <<: *default
+  compile: false
+  cache_manifest: true

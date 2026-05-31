@@ -1,4 +1,4 @@
-import 'application/styles/bootstrap.scss'
+import 'bootstrap/dist/css/bootstrap.css'
 
 import app from 'application'
 

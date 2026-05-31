@@ -42,7 +42,7 @@
           ref="input"
           v-model="searchInput"
           type="text"
-          :placeholder="selectedOptionsData.length ? '' : placeholder"
+          :placeholder="selectedOptionsData.length ? '' : displayPlaceholder"
           autocomplete="off"
           spellcheck="false"
           :disabled="disabled"
@@ -58,7 +58,7 @@
           v-else-if="selectedOptionData || !selectedOptionsData.length"
           :class="{ 'ivu-select-placeholder': !selectedOptionData, 'ivu-select-selected-value' : selectedOptionData }"
         >
-          {{ selectedOptionData ? getLabel(selectedOptionData) : placeholder }}
+          {{ selectedOptionData ? getLabel(selectedOptionData) : displayPlaceholder }}
         </span>
         <i
           v-if="withDeselect && selectedOptionData"
@@ -82,7 +82,7 @@
           v-if="notFound && !withCreateButton"
           class="ivu-select-not-found"
         >
-          <li>Not Found</li>
+          <li>{{ t('settings.common.notFound') }}</li>
         </ul>
         <ul class="ivu-select-dropdown-list">
           <li
@@ -118,14 +118,14 @@
             @click.stop="$emit('click-create')"
           >
             <Icon type="md-add" />
-            Create New
+            {{ t('settings.common.createNew') }}
           </li>
         </ul>
         <div
           v-show="isLoading"
           class="ivu-select-loading"
         >
-          Loading
+          {{ t('settings.common.loading') }}
         </div>
       </div>
     </transition>
@@ -136,7 +136,8 @@
 import { directive as clickOutside } from 'view3/src/directives/v-click-outside-x'
 import { getStyle } from 'view3/src/utils/assist'
 import throttle from 'view3/src/utils/throttle'
-import Popper from 'popper.js/dist/umd/popper.js'
+import { createPopper } from '@popperjs/core'
+import localeMixin from 'application/scripts/locale_mixin'
 
 const MAX_FILTER_ITEMS = 100
 const REMOTE_SEARCH_THROTTLE_DURATION = 500
@@ -144,6 +145,7 @@ const REMOTE_SEARCH_THROTTLE_DURATION = 500
 export default {
   name: 'SimpleSelect',
   directives: { clickOutside },
+  mixins: [localeMixin],
   props: {
     modelValue: {
       type: [String, Number, Array, Boolean],
@@ -215,7 +217,7 @@ export default {
     placeholder: {
       type: String,
       reqired: false,
-      default: 'Select'
+      default: ''
     },
     labelKey: {
       type: [String, Number],
@@ -279,6 +281,9 @@ export default {
     }
   },
   computed: {
+    displayPlaceholder () {
+      return this.placeholder || this.t('settings.common.select')
+    },
     remoteFunctionThrottled () {
       return throttle((query) => this.remoteFunction(query), REMOTE_SEARCH_THROTTLE_DURATION)
     },
@@ -406,6 +411,9 @@ export default {
         this.searchInput = this.getLabel(this.selectedOptionData) || this.modelValue
       }
     }
+  },
+  beforeUnmount () {
+    this.popper?.destroy()
   },
   beforeUpdate () {
     this.optionRefs = []
@@ -601,16 +609,22 @@ export default {
       if (!this.disabled) {
         this.isOpen = !this.isOpen
 
-        this.popper ||= new Popper(this.$el, this.$refs.dropdown, {
+        this.popper ||= createPopper(this.$el, this.$refs.dropdown, {
           placement: 'bottom-start',
-          modifiers: {
-            computeStyle: {
-              gpuAcceleration: false
+          modifiers: [
+            {
+              name: 'computeStyles',
+              options: {
+                gpuAcceleration: false
+              }
             },
-            preventOverflow: {
-              boundariesElement: 'window'
+            {
+              name: 'preventOverflow',
+              options: {
+                boundary: 'viewport'
+              }
             }
-          }
+          ]
         })
 
         this.popper.update()

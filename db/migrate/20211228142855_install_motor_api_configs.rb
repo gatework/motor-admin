@@ -8,8 +8,8 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
 
       encrypts :credentials
 
-      serialize :credentials, Motor::HashSerializer
-      serialize :preferences, Motor::HashSerializer
+      serialize :credentials, coder: Motor::HashSerializer
+      serialize :preferences, coder: Motor::HashSerializer
 
       attribute :preferences, default: -> { ActiveSupport::HashWithIndifferentAccess.new }
       attribute :credentials, default: -> { ActiveSupport::HashWithIndifferentAccess.new }
@@ -20,7 +20,7 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
     @_MotorForm ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_forms'
 
-      serialize :preferences, Motor::HashSerializer
+      serialize :preferences, coder: Motor::HashSerializer
     end
   end
 
@@ -28,7 +28,7 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
     @_MotorQuery ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_queries'
 
-      serialize :preferences, Motor::HashSerializer
+      serialize :preferences, coder: Motor::HashSerializer
     end
   end
 
@@ -53,7 +53,7 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
 
     _MotorForm.reset_column_information
 
-    _MotorForm.all.each do |form|
+    _MotorForm.find_each do |form|
       if form.api_path.starts_with?('http')
         url = form.api_path[%r{\Ahttps?://[^/]+}]
 
@@ -69,7 +69,7 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
       end
     end
 
-    _MotorQuery.all.each do |query|
+    _MotorQuery.find_each do |query|
       next if query.preferences['api_path'].blank?
 
       if query.preferences['api_path'].starts_with?('http')

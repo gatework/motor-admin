@@ -9,10 +9,10 @@ module Api
     end
 
     def create
-      if @role.save!
+      if @role.save
         render json: { data: @role }
       else
-        render json: { errors: @role.errors.as_json }, status: :unprocessable_entity
+        render json: { errors: @role.errors.as_json }, status: :unprocessable_content
       end
     end
 
@@ -20,7 +20,7 @@ module Api
       if @role.update(role_params)
         render json: { data: @role }
       else
-        render json: { errors: @admin_user.errors.as_json }, status: :unprocessable_entity
+        render json: { errors: @role.errors.as_json }, status: :unprocessable_content
       end
     end
 
@@ -33,12 +33,12 @@ module Api
     private
 
     def role_params
-      params.require(:role).permit(:name, rules: [{
-                                     subjects: [],
-                                     actions: [],
-                                     attributes: [],
-                                     conditions: [:key, { value: [] }]
-                                   }])
+      params.expect(role: [:name, { rules: [[{
+                      subjects: [],
+                      actions: [],
+                      attributes: [],
+                      conditions: [[:key, { value: [] }]]
+                    }]] }])
     end
   end
 end

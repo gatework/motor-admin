@@ -9,9 +9,6 @@ import DynamicDialog from 'view3/src/plugins/dynamic-dialog'
 import DynamicMessage from 'view3/src/plugins/dynamic-message'
 
 import Button from 'view3/src/components/button'
-import Dropdown from 'view3/src/components/dropdown'
-import DropdownMenu from 'view3/src/components/dropdown-menu'
-import DropdownItem from 'view3/src/components/dropdown-item'
 import Card from 'view3/src/components/card'
 import Icon from 'view3/src/components/icon'
 import Input from 'view3/src/components/input'
@@ -21,9 +18,10 @@ import Radio from 'view3/src/components/radio'
 import RadioGroup from 'view3/src/components/radio-group'
 import Spin from 'view3/src/components/spin'
 import Divider from 'view3/src/components/divider'
-import Switch from 'view3/src/components/switch'
-import Checkbox from 'view3/src/components/checkbox'
 import Badge from 'view3/src/components/badge'
+import Dropdown from './components/dropdown'
+import DropdownMenu from './components/dropdown_menu'
+import DropdownItem from './components/dropdown_item'
 import MinimalSelect from './components/minimal_select'
 
 const app = createApp(App)
@@ -35,12 +33,10 @@ app.component('VInput', Input)
 app.component('VForm', Form)
 app.component('FormItem', FormItem)
 app.component('Spin', Spin)
-app.component('Switch', Switch)
 app.component('Radio', Radio)
 app.component('RadioGroup', RadioGroup)
 app.component('Divider', Divider)
 app.component('Dropdown', Dropdown)
-app.component('Checkbox', Checkbox)
 app.component('Badge', Badge)
 app.component('DropdownMenu', DropdownMenu)
 app.component('DropdownItem', DropdownItem)

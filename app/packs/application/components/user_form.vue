@@ -8,29 +8,29 @@
     <div class="row">
       <FormItem
         prop="first_name"
-        label="First Name"
+        :label="t('settings.usersPage.firstNameLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="value.first_name"
           type="text"
-          placeholder="John"
+          :placeholder="t('settings.usersPage.firstNamePlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="last_name"
-        label="Last Name"
+        :label="t('settings.usersPage.lastNameLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="value.last_name"
           type="text"
-          placeholder="Doe"
+          :placeholder="t('settings.usersPage.lastNamePlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="email"
-        label="Email"
+        :label="t('settings.usersPage.emailLabel')"
         class="col-12"
       >
         <VInput
@@ -39,12 +39,12 @@
           type="email"
           autocomplete="false"
           name="email"
-          placeholder="example@example.com"
+          :placeholder="t('settings.usersPage.emailPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="password"
-        label="Password"
+        :label="t('settings.usersPage.passwordLabel')"
         class="col-12"
       >
         <VInput
@@ -52,13 +52,13 @@
           prefix="md-key"
           type="password"
           name="password"
-          placeholder="**********"
+          :placeholder="t('settings.usersPage.passwordPlaceholder')"
         />
       </FormItem>
       <FormItem
         v-if="mode !== 'setup' && withRole"
         prop="role_ids"
-        label="Roles"
+        :label="t('settings.usersPage.rolesLabel')"
         class="col-12"
       >
         <RolesSelect
@@ -73,7 +73,7 @@
       long
       @click="handleSubmit()"
     >
-      {{ submitText }}
+      {{ displaySubmitText }}
     </VButton>
     <Spin
       v-if="isLoading"
@@ -85,12 +85,14 @@
 <script>
 import api from 'application/api'
 import RolesSelect from './roles_select'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'UserForm',
   components: {
     RolesSelect
   },
+  mixins: [localeMixin],
   props: {
     user: {
       type: Object,
@@ -118,7 +120,7 @@ export default {
     submitText: {
       type: String,
       required: false,
-      default: 'Submit'
+      default: ''
     },
     withRole: {
       type: Boolean,
@@ -134,6 +136,9 @@ export default {
     }
   },
   computed: {
+    displaySubmitText () {
+      return this.submitText || this.t('settings.usersPage.updateSubmit')
+    },
     apiPath () {
       return {
         create: 'admin_users',
@@ -172,16 +177,17 @@ export default {
     submit () {
       this.isLoading = true
 
+      const adminUser = { ...this.value }
+
       if (!this.withRole) {
-        delete this.value.role_ids
+        delete adminUser.role_ids
       }
 
       api[this.apiMethod](this.apiPath, {
-        admin_user: this.value
+        admin_user: adminUser
       }).then((result) => {
         this.$emit('success', result.data.data)
       }).catch((error) => {
-        console.error(error)
         this.$emit('error', error)
       }).finally(() => {
         this.isLoading = false

@@ -49,18 +49,18 @@
               <DropdownItem
                 @click="editUser"
               >
-                Edit
+                {{ t('settings.usersPage.edit') }}
               </DropdownItem>
               <DropdownItem
                 @click="resetPassword"
               >
-                Reset password
+                {{ t('settings.usersPage.resetPassword') }}
               </DropdownItem>
               <DropdownItem
                 v-if="removable"
                 @click="deleteUser"
               >
-                Remove
+                {{ t('settings.usersPage.remove') }}
               </DropdownItem>
             </DropdownMenu>
           </template>
@@ -77,9 +77,12 @@
 <script>
 import api from 'application/api'
 import UserForm from 'application/components/user_form'
+import { errorMessage } from 'application/scripts/error_messages'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'User',
+  mixins: [localeMixin],
   props: {
     user: {
       type: Object,
@@ -108,11 +111,15 @@ export default {
         user: this.user,
         requirePassword: false,
         mode: 'update',
+        submitText: this.t('settings.usersPage.updateSubmit'),
         onSuccess: (data) => {
           this.$Modal.remove()
-          this.$Message.info(`${data.email} user has been updated`)
+          this.$Message.info(this.t('settings.usersPage.updated', '', { email: data.email }))
 
           this.$emit('update')
+        },
+        onError: (error) => {
+          this.$Message.error(errorMessage(error))
         }
       }, {
         closable: true
@@ -122,27 +129,24 @@ export default {
       this.isLoading = true
 
       api.post(`admin_users/${this.user.id}/reset_password`).then(() => {
-        this.$Message.info(`Reset password instructions have been sent to ${this.user.email}`)
+        this.$Message.info(this.t('settings.usersPage.resetPasswordSent', '', { email: this.user.email }))
       }).catch((error) => {
-        console.error(error)
-
-        this.$Message.error('Unable to perform this action')
+        this.$Message.error(errorMessage(error))
       }).finally(() => {
         this.isLoading = false
       })
     },
     deleteUser () {
       this.$Dialog.confirm({
-        title: 'Are you sure?',
+        title: this.t('settings.usersPage.areYouSure'),
         closable: true,
         onOk: () => {
           api.delete(`admin_users/${this.user.id}`).then(() => {
-            this.$Message.info(`${this.user.email} user has been removed`)
+            this.$Message.info(this.t('settings.usersPage.removed', '', { email: this.user.email }))
 
             this.$emit('update')
           }).catch((error) => {
-            console.error(error)
-            this.$Message.error('Unable to perform this action')
+            this.$Message.error(errorMessage(error))
           })
         }
       })

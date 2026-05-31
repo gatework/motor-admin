@@ -4,7 +4,7 @@
       <MSelect
         v-model="filter.key"
         :options="columns"
-        :placeholder="'Select Field'"
+        :placeholder="t('settings.rulesPage.selectFieldPlaceholder')"
         class="align-top"
         @update:selectedOption="selectedColumn = $event"
       />
@@ -22,7 +22,7 @@
           v-else
           v-model="filter.value"
           multiple
-          :placeholder="'Values'"
+          :placeholder="t('settings.rulesPage.valuesPlaceholder')"
           :options="filter.value"
           allow-create
         />
@@ -34,7 +34,7 @@
             :ghost="filter.value.includes('current_user_id')"
             @click="toggleValue('current_user_id')"
           >
-            User ID
+            {{ t('settings.rulesPage.userId') }}
           </VButton>
           <VButton
             size="small"
@@ -42,7 +42,7 @@
             :ghost="filter.value.includes('current_user_email')"
             @click="toggleValue('current_user_email')"
           >
-            User email
+            {{ t('settings.rulesPage.userEmail') }}
           </VButton>
         </div>
       </div>
@@ -56,9 +56,11 @@
 
 <script>
 import { modelNameMap } from 'application/scripts/schema'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'RuleFilterItem',
+  mixins: [localeMixin],
   props: {
     filter: {
       type: Object,

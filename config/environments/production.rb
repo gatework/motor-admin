@@ -6,11 +6,9 @@ Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
-  config.cache_classes = true
+  config.enable_reloading = false
 
-  # Eager load code on boot. This eager loads most of Rails and
-  # your application in memory, allowing both threaded web servers
-  # and those relying on copy on write to perform better.
+  # Eager load code on boot for better performance and memory savings.
   # Rake tasks automatically ignore this option for performance.
   config.eager_load = true
 
@@ -43,7 +41,7 @@ Rails.application.configure do
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
-  config.active_storage.variant_processor = :mini_magick
+  config.active_storage.variant_processor = :vips
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
@@ -77,14 +75,8 @@ Rails.application.configure do
   # the I18n.default_locale when a translation cannot be found).
   config.i18n.fallbacks = true
 
-  # Send deprecation notices to registered listeners.
-  config.active_support.deprecation = :notify
-
-  # Log disallowed deprecations.
-  config.active_support.disallowed_deprecation = :log
-
-  # Tell Active Support which deprecation messages to disallow.
-  config.active_support.disallowed_deprecation_warnings = []
+  # Don't log any deprecations.
+  config.active_support.report_deprecations = false
 
   if ENV['HOST'].present?
     routes.default_url_options = {
@@ -108,6 +100,9 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  # Only use :id for inspections in production.
+  config.active_record.attributes_for_inspect = [:id]
+
   config.secret_key_base = ENV['SECRET_KEY_BASE'].to_s
 
   config.active_record.encryption = {
@@ -116,11 +111,25 @@ Rails.application.configure do
     key_derivation_salt: ENV['SECRET_KEY_BASE'].to_s
   }
 
-  config.active_record.sqlite3_production_warning = false
-
   config.lograge.enabled = true
   config.lograge.formatter = ->(data) { data.except(:controller, :action, :format, :location).to_json }
   config.lograge.base_controller_class = ['ActionController::API', 'ActionController::Base']
+  config.lograge.ignore_custom = ->(event) { event.name.end_with?('.action_cable') }
+  config.lograge.before_format = lambda do |data, payload|
+    if payload[:request]
+      data[:method] ||= payload[:request].request_method
+      data[:path] ||= payload[:request].filtered_path
+    end
+
+    base_path = ENV.fetch('BASE_PATH', '/admin').presence || '/admin'
+    path = data[:path].to_s
+
+    if base_path != '/' && (path == base_path || path.start_with?("#{base_path}/"))
+      data[:path] = path.delete_prefix(base_path).presence || '/'
+    end
+
+    data
+  end
 
   config.lograge.custom_payload do |controller|
     {

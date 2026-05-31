@@ -1,4 +1,5 @@
-require:
+plugins:
+  - rubocop-capybara
   - rubocop-performance
   - rubocop-rails
   - rubocop-rspec
@@ -12,7 +13,7 @@ AllCops:
     - gems/**/*
     - db/schema.rb
     - Gemfile
-  TargetRubyVersion: '3.0'
+  TargetRubyVersion: '4.0'
 
 Metrics/BlockLength:
   Exclude:
@@ -46,6 +47,11 @@ Naming/FileName:
 Naming/MethodParameterName:
   MinNameLength: 2
 
+Naming/PredicateMethod:
+  AllowedMethods:
+    - call
+    - remember_me
+
 Metrics/ModuleLength:
   Max: 300
 
@@ -76,5 +82,5 @@ RSpec/MultipleExpectations:
 RSpec/NestedGroups:
   Max: 5
 
-RSpec/Capybara/VisibilityMatcher:
+Capybara/RSpec/VisibilityMatcher:
   Enabled: false

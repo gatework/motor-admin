@@ -8,27 +8,29 @@
     <div class="row">
       <FormItem
         prop="project"
-        label="Project"
+        :label="t('settings.storagePage.gcsProjectLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.project"
           type="text"
+          :placeholder="t('settings.storagePage.gcsProjectPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="bucket"
-        label="Bucket"
+        :label="t('settings.storagePage.gcsBucketLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="configs.bucket"
           type="text"
+          :placeholder="t('settings.storagePage.gcsBucketPlaceholder')"
         />
       </FormItem>
       <FormItem
         prop="credentials"
-        label="Credentials (JSON key content)"
+        :label="t('settings.storagePage.gcsCredentialsLabel')"
         class="col-12"
       >
         <VInput
@@ -45,7 +47,7 @@
       long
       @click="handleSubmit"
     >
-      Submit
+      {{ displaySubmitText }}
     </VButton>
     <Spin
       v-if="isLoading"
@@ -56,9 +58,11 @@
 
 <script>
 import api from 'application/api'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'GcsForm',
+  mixins: [localeMixin],
   props: {
     configs: {
       type: Object,
@@ -78,6 +82,9 @@ export default {
         project: [{ required: true }],
         bucket: [{ required: true }]
       }
+    },
+    displaySubmitText () {
+      return this.t('settings.storagePage.updateSubmit')
     }
   },
   methods: {
@@ -95,7 +102,6 @@ export default {
       }).then((result) => {
         this.$emit('success', result.data.data)
       }).catch((error) => {
-        console.error(error)
         this.$emit('error', error)
       }).finally(() => {
         this.isLoading = false

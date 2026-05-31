@@ -7,7 +7,7 @@ class ImpersonateController < ApplicationController
   skip_before_action :authenticate_admin_user!
 
   def show
-    sha1, payload = params[:token].unpack("a#{SHA1_LENGTH}a*")
+    sha1, payload = params.expect(:token).unpack("a#{SHA1_LENGTH}a*")
     user_id, timestamp = JSON.parse(Base64.decode64([payload].pack('h*')))
 
     return head :forbidden if valid_token?(sha1, user_id, timestamp)

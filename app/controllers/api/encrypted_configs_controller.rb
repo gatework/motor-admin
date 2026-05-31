@@ -6,9 +6,7 @@ module Api
 
     load_and_authorize_resource class: 'Motor::EncryptedConfig', id_param: :key, find_by: :key
 
-    rescue_from ActiveRecord::RecordNotFound do
-      head :not_found
-    end
+    rescue_from ActiveRecord::RecordNotFound, with: :render_missing_encrypted_config
 
     def index
       render json: { data: @encrypted_configs }
@@ -35,6 +33,16 @@ module Api
 
     def encrypted_config_params
       params[:data].to_unsafe_h.slice(:key, :value)
+    end
+
+    def render_missing_encrypted_config
+      unless current_ability.can?(:read, Motor::EncryptedConfig)
+        render json: { errors: ['You are not authorized to access this page.'] }, status: :forbidden
+
+        return
+      end
+
+      render json: { data: { key: params[:key], value: nil } }
     end
   end
 end

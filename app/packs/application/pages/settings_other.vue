@@ -4,21 +4,24 @@
     style="line-height: normal"
   >
     <div class="d-flex align-items-center mt-2">
-      Language
+      {{ t('settings.languageSelectLabel') }}
       <select
-        v-model="language"
+        v-model="locale"
         size="1"
         class="ms-2"
         @change="changeLanguage"
       >
         <option value="en">
-          English
+          {{ t('settings.languageOptions.en') }}
         </option>
         <option value="es">
-          Español
+          {{ t('settings.languageOptions.es') }}
         </option>
         <option value="el">
-          Ελληνικά
+          {{ t('settings.languageOptions.el') }}
+        </option>
+        <option value="zh-CN">
+          {{ t('settings.languageOptions.zh-CN') }}
         </option>
       </select>
     </div>
@@ -27,19 +30,19 @@
       <VForm>
         <FormItem
           prop="token"
-          label="Slack Token"
+          :label="t('settings.otherPage.slackToken')"
           class="col-12 mb-2"
         >
           <VInput
             v-model="slackApiKey"
             type="text"
-            placeholder="API Token"
+            :placeholder="t('settings.otherPage.slackTokenPlaceholder')"
           />
         </FormItem>
         <a
           href="https://my.slack.com/services/new/bot"
           target="_blank"
-        >Create a Slack Bot here</a>
+        >{{ t('settings.otherPage.createSlackBotHere') }}</a>
         <VButton
           type="primary"
           class="mt-3"
@@ -47,7 +50,7 @@
           long
           @click="setSlackToken"
         >
-          Submit
+          {{ t('settings.otherPage.submit') }}
         </VButton>
       </VForm>
     </div>
@@ -56,13 +59,13 @@
       <VForm>
         <FormItem
           prop="html"
-          label="Tracking script"
+          :label="t('settings.otherPage.trackingScript')"
           class="col-12 mb-2"
         >
           <VInput
             v-model="configs['ui.custom_html']"
             type="textarea"
-            placeholder="<script> </script>"
+            :placeholder="t('settings.otherPage.trackingScriptPlaceholder')"
             :autosize="{ minRows: 4, maxRows: 7 }"
           />
         </FormItem>
@@ -73,7 +76,7 @@
           long
           @click="setCustomHtml(configs['ui.custom_html'])"
         >
-          Submit
+          {{ t('settings.otherPage.submit') }}
         </VButton>
       </VForm>
     </div>
@@ -86,62 +89,92 @@
 
 <script>
 import api from 'application/api'
+import { errorMessage } from 'application/scripts/error_messages'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'OtherSettingsPage',
+  mixins: [localeMixin],
   data () {
     return {
       isLoading: false,
       checked: false,
       slackApiKey: '',
-      language: document.documentElement.getAttribute('lang'),
       configs: {}
     }
   },
   mounted () {
-    this.loadSlackCredentials()
-    this.loadConfigs()
+    this.isLoading = true
+
+    Promise.all([
+      this.loadSlackCredentials(),
+      this.loadConfigs()
+    ]).finally(() => {
+      this.isLoading = false
+    })
   },
   methods: {
     changeLanguage (event) {
-      api.post('configs', {
-        key: 'language',
-        value: event.target.value
-      }).then(() => {
-        this.$Message.info('Admin panel language has been changed!')
+      const nextLocale = event.target.value
 
-        document.documentElement.setAttribute('lang', event.target.value)
+      api.post('configs', {
+        data: {
+          key: 'language',
+          value: nextLocale
+        }
+      }).then(() => {
+        this.locale = nextLocale
+        document.documentElement.setAttribute('lang', nextLocale)
+        window.dispatchEvent(new Event('motor:locale-changed'))
+        this.$Message.info(this.t('settings.otherPage.languageChanged'))
+      }).catch((error) => {
+        this.showErrorMessage(error)
       })
     },
     setCustomHtml (value) {
       api.post('configs', {
-        key: 'ui.custom_html',
-        value: value
+        data: {
+          key: 'ui.custom_html',
+          value: value
+        }
       }).then(() => {
-        this.$Message.info('Changes have been saved!')
+        this.$Message.info(this.t('settings.otherPage.changesSaved'))
+      }).catch((error) => {
+        this.showErrorMessage(error)
       })
     },
-    setSlackToken (event) {
+    setSlackToken () {
       api.post('encrypted_configs', {
-        key: 'slack.credentials',
-        value: { api_key: this.slackApiKey }
+        data: {
+          key: 'slack.credentials',
+          value: { api_key: this.slackApiKey }
+        }
       }).then(() => {
-        this.$Message.info('Credentials has been saved!')
+        this.$Message.info(this.t('settings.otherPage.credentialsSaved'))
+      }).catch((error) => {
+        this.showErrorMessage(error)
       })
     },
     loadConfigs () {
-      api.get('configs').then((result) => {
+      return api.get('configs').then((result) => {
         this.configs = result.data.data.reduce((acc, conf) => {
           acc[conf.key] = conf.value
 
           return acc
         }, {})
+      }).catch((error) => {
+        this.showErrorMessage(error)
       })
     },
     loadSlackCredentials () {
-      api.get('encrypted_configs/slack.credentials').then((result) => {
-        this.slackApiKey = result.data.data.value.api_key || ''
+      return api.get('encrypted_configs/slack.credentials').then((result) => {
+        this.slackApiKey = result.data.data.value?.api_key || ''
+      }).catch((error) => {
+        this.showErrorMessage(error)
       })
+    },
+    showErrorMessage (error) {
+      this.$Message.error(errorMessage(error))
     },
     showDialog () {
       this.$nextTick(() => {
@@ -149,15 +182,15 @@ export default {
       })
 
       this.$Dialog.info({
-        title: 'This feature is available in Motor Admin Pro',
-        okText: 'Learn More',
+        title: this.t('settings.otherPage.proFeatureTitle'),
+        okText: this.t('settings.otherPage.proFeatureAction'),
         onOk () {
           location.href = 'https://www.getmotoradmin.com/pro'
         }
       }, {
         closable: true
       })
-    }
+    },
   }
 }
 </script>

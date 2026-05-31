@@ -37,6 +37,7 @@
 <script>
 import SubjectSelect from './subject_select'
 import ActionsSelect from './action_select'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'RuleItem',
@@ -44,6 +45,7 @@ export default {
     SubjectSelect,
     ActionsSelect
   },
+  mixins: [localeMixin],
   props: {
     rule: {
       type: Object,
@@ -69,8 +71,8 @@ export default {
   methods: {
     openSettings () {
       this.$Dialog.info({
-        title: 'This feature is available in Motor Admin Pro',
-        okText: 'Learn More',
+        title: this.t('settings.common.proFeatureTitle'),
+        okText: this.t('settings.common.proFeatureAction'),
         onOk () {
           location.href = 'https://www.getmotoradmin.com/pro'
         }

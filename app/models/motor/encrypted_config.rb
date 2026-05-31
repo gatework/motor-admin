@@ -4,7 +4,7 @@ module Motor
   class EncryptedConfig < ::Motor::ApplicationRecord
     encrypts :value
 
-    serialize :value, Motor::HashSerializer
+    serialize :value, coder: Motor::HashSerializer
 
     DATABASE_CREDENTIALS_KEY = 'database.credentials'
     SLACK_CREDENTIALS_KEY = 'slack.credentials'

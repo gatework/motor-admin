@@ -8,25 +8,25 @@
     <FormItem
       v-if="withName"
       prop="name"
-      label="Name"
+      :label="t('settings.databasePage.nameLabel')"
       class="col-12"
     >
       <VInput
         v-model="dataConfigs.name"
         type="text"
-        placeholder="Database name"
+        :placeholder="t('settings.databasePage.namePlaceholder')"
       />
     </FormItem>
     <FormItem
       prop="url"
-      label="URL"
+      :label="t('settings.databasePage.urlLabel')"
       class="col-12"
     >
       <VInput
         v-model="dataConfigs.url"
         type="text"
         size="large"
-        placeholder="postgresql://username:password@localhost:5432/db_name"
+        :placeholder="t('settings.databasePage.urlPlaceholder')"
         @update:model-value="assignFields"
       />
     </FormItem>
@@ -51,75 +51,75 @@
     <div class="row">
       <FormItem
         prop="host"
-        label="Host"
+        :label="t('settings.databasePage.hostLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="dataConfigs.host"
           type="text"
-          placeholder="example.com"
+          :placeholder="t('settings.databasePage.hostPlaceholder')"
           @update:model-value="assignUrl"
         />
         <small v-if="isError && ['localhost', '0.0.0.0', '127.0.0.1'].includes(dataConfigs.host)">
-          Use <code>`host.docker.internal`</code> on macOS and Windows.
+          <span v-html="t('settings.databasePage.dockerHostHint')" />
         </small>
       </FormItem>
       <FormItem
         prop="port"
-        label="Port"
+        :label="t('settings.databasePage.portLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="dataConfigs.port"
           type="text"
-          placeholder="5432"
+          :placeholder="t('settings.databasePage.portPlaceholder')"
           @update:model-value="assignUrl"
         />
       </FormItem>
       <FormItem
         prop="username"
-        label="Username"
+        :label="t('settings.databasePage.usernameLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="dataConfigs.username"
           type="text"
-          placeholder="admin"
+          :placeholder="t('settings.databasePage.usernamePlaceholder')"
           @update:model-value="assignUrl"
         />
       </FormItem>
       <FormItem
         prop="password"
-        label="Password"
+        :label="t('settings.databasePage.passwordLabel')"
         class="col-12 col-md-6"
       >
         <VInput
           v-model="dataConfigs.password"
           type="password"
-          placeholder="**********"
+          :placeholder="t('settings.databasePage.passwordPlaceholder')"
           @update:model-value="assignUrl"
         />
       </FormItem>
       <FormItem
         prop="database"
-        label="Database"
+        :label="t('settings.databasePage.databaseLabel')"
         class="col-12"
       >
         <VInput
           v-model="dataConfigs.database"
-          placeholder="db_name"
+          :placeholder="t('settings.databasePage.databasePlaceholder')"
           @update:model-value="assignUrl"
         />
       </FormItem>
       <FormItem
         v-if="dataConfigs.protocol === 'postgres'"
         prop="schema_search_path"
-        label="Schemas"
+        :label="t('settings.databasePage.schemaLabel')"
         class="col-12"
       >
         <VInput
           v-model="dataConfigs.schema_search_path"
-          placeholder="public, custom_schema"
+          :placeholder="t('settings.databasePage.schemaPlaceholder')"
         />
       </FormItem>
     </div>
@@ -130,7 +130,7 @@
       long
       @click="handleSubmit"
     >
-      {{ submitText }}
+      {{ displaySubmitText }}
     </VButton>
     <Spin
       v-if="isLoading"
@@ -142,9 +142,11 @@
 <script>
 import api from 'application/api'
 import { databaseUrlToObject } from 'application/scripts/urls'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'DatabaseForm',
+  mixins: [localeMixin],
   props: {
     configs: {
       type: Object,
@@ -164,7 +166,7 @@ export default {
     submitText: {
       type: String,
       required: false,
-      default: 'Submit'
+      default: ''
     }
   },
   emits: ['success', 'error', 'submit'],
@@ -176,6 +178,9 @@ export default {
     }
   },
   computed: {
+    displaySubmitText () {
+      return this.submitText || this.t('settings.common.submit')
+    },
     rules () {
       return {
         name: [{
@@ -190,9 +195,9 @@ export default {
     },
     dbTypeOptions () {
       return [
-        { label: 'PostgreSQL', value: 'postgres' },
-        { label: 'MySQL', value: 'mysql2' },
-        { label: 'SQL Server', value: 'sqlserver' }
+        { label: this.t('settings.databasePage.dbTypePostgreSQL'), value: 'postgres' },
+        { label: this.t('settings.databasePage.dbTypeMySQL'), value: 'mysql2' },
+        { label: this.t('settings.databasePage.dbTypeSqlServer'), value: 'sqlserver' }
       ]
     }
   },

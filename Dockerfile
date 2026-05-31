@@ -1,4 +1,4 @@
-FROM ruby:3.2.0-alpine as webpacker
+FROM ruby:4.0.5-alpine AS shakapacker
 
 ENV RAILS_ENV=production
 ENV NODE_ENV=production
@@ -12,47 +12,49 @@ COPY ./package.json ./yarn.lock ./
 
 RUN yarn install --network-timeout 1000000
 
-COPY ./bin/webpacker ./bin/webpacker
+COPY ./bin/shakapacker ./bin/shakapacker
 COPY ./config/webpack ./config/webpack
-COPY ./config/webpacker.yml ./config/webpacker.yml
+COPY ./config/shakapacker.yml ./config/shakapacker.yml
 COPY ./postcss.config.js ./babel.config.js ./
 COPY ./app/packs ./app/packs
 
-RUN echo "gem 'shakapacker'" > Gemfile && ./bin/webpacker
+RUN printf "%s\n" "source 'https://rubygems.org'" "gem 'shakapacker', '~> 10.1'" > Gemfile && \
+    bundle install && \
+    ./bin/shakapacker
 
-FROM ruby:3.2.0-alpine as assets
+FROM ruby:4.0.5-alpine AS assets
 
-WORKDIR /opt
+WORKDIR /opt/vendor/motor-admin-pro/ui
 
 RUN apk add --no-cache nodejs yarn git build-base python3
 
-COPY ./vendor/motor-admin/ui/package.json ./vendor/motor-admin/ui/yarn.lock ./
+COPY ./vendor/motor-admin-pro/ui/package.json ./vendor/motor-admin-pro/ui/yarn.lock ./
 
 RUN yarn install --network-timeout 1000000
 
-COPY ./vendor/motor-admin/ui ./
+COPY ./vendor/motor-admin-pro/ui ./
 
 RUN yarn build:prod
 
-FROM ruby:3.2.0-alpine as app
+FROM ruby:4.0.5-alpine AS app
 
 ENV RAILS_ENV=production
 ENV BUNDLE_WITHOUT="development:test"
 
 WORKDIR /opt/motor-admin
 
-RUN apk add --no-cache freetds-dev sqlite-dev libpq-dev mariadb-dev build-base
+RUN apk add --no-cache freetds-dev sqlite-dev libpq-dev mariadb-dev vips build-base
 
 COPY ./Gemfile ./Gemfile.lock ./
-COPY ./vendor/motor-admin/lib/motor/version.rb ./vendor/motor-admin/lib/motor/version.rb
-COPY ./vendor/motor-admin/motor-admin.gemspec ./vendor/motor-admin/motor-admin.gemspec
+COPY ./vendor/motor-admin-pro/lib/motor/version.rb ./vendor/motor-admin-pro/lib/motor/version.rb
+COPY ./vendor/motor-admin-pro/motor-admin-pro.gemspec ./vendor/motor-admin-pro/motor-admin-pro.gemspec
 
-RUN bundle update --bundler && bundle install && rm -rf ~/.bundle
+RUN bundle install && rm -rf ~/.bundle
 
 COPY . ./
 
-COPY --from=assets /opt/dist ./vendor/motor-admin/ui/dist
-COPY --from=webpacker /opt/public/packs ./public/packs
+COPY --from=assets /opt/vendor/motor-admin-pro/ui/dist ./vendor/motor-admin-pro/ui/dist
+COPY --from=shakapacker /opt/public/packs ./public/packs
 
 RUN bundle exec bootsnap precompile --gemfile app/ lib/
 
@@ -61,4 +63,4 @@ RUN ln -s /opt/motor-admin/bin/motor-admin /usr/local/bin && chmod +x /usr/local
 WORKDIR /app
 ENV WORKDIR=/app/
 
-CMD motor-admin
+CMD ["motor-admin"]

@@ -5,7 +5,7 @@
     :label-key="'display_name'"
     :with-deselect="false"
     :options="subjects"
-    :placeholder="'Select Resource'"
+    :placeholder="t('settings.rulesPage.subjectSelectPlaceholder')"
     filterable
     @update:model-value="$emit('update:modelValue', $event)"
     @update:selected-option="$emit('update:selectedOption', $event)"
@@ -14,9 +14,11 @@
 
 <script>
 import { schema } from 'application/scripts/schema'
+import localeMixin from 'application/scripts/locale_mixin'
 
 export default {
   name: 'SubjectSelect',
+  mixins: [localeMixin],
   props: {
     modelValue: {
       type: String,
@@ -28,18 +30,18 @@ export default {
   computed: {
     subjects () {
       return [
-        { class_name: 'all', display_name: 'All' },
+        { class_name: 'all', display_name: this.t('settings.rulesPage.subjectSelectAll') },
         ...this.motorSubjects,
         ...schema
       ]
     },
     motorSubjects () {
       return [
-        { class_name: 'Motor::Form', display_name: 'Forms' },
-        { class_name: 'Motor::Query', display_name: 'Queries' },
-        { class_name: 'Motor::Dashboard', display_name: 'Dashboards' },
-        { class_name: 'Motor::Alert', display_name: 'Alerts' },
-        { class_name: 'Motor::Note', display_name: 'Notes' }
+        { class_name: 'Motor::Form', display_name: this.t('settings.rulesPage.subjectSelectForms') },
+        { class_name: 'Motor::Query', display_name: this.t('settings.rulesPage.subjectSelectQueries') },
+        { class_name: 'Motor::Dashboard', display_name: this.t('settings.rulesPage.subjectSelectDashboards') },
+        { class_name: 'Motor::Alert', display_name: this.t('settings.rulesPage.subjectSelectAlerts') },
+        { class_name: 'Motor::Note', display_name: this.t('settings.rulesPage.subjectSelectNotes') }
       ]
     }
   }
