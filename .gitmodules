@@ -1,3 +1,6 @@
 [submodule "vendor/motor-admin"]
 	path = vendor/motor-admin
 	url = https://github.com/gatework/motor-admin-rails
+[submodule "vendor/motor-admin-pro"]
+	path = vendor/motor-admin-pro
+	url = https://github.com/gatework/motor-admin-pro.git
