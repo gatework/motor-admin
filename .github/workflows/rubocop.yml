@@ -12,19 +12,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
-
-      - name: Install required package
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install libpq-dev freetds-dev
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 4.0.5
-          bundler-cache: true
+
+      - name: Install RuboCop dependencies
+        run: |
+          ruby <<'RUBY'
+          lockfile = File.read('Gemfile.lock')
+
+          %w[
+            rubocop
+            rubocop-capybara
+            rubocop-performance
+            rubocop-rails
+            rubocop-rspec
+          ].each do |gem_name|
+            version = lockfile[/^    #{Regexp.escape(gem_name)} \(([^)]+)\)/, 1]
+            abort "Unable to find #{gem_name} in Gemfile.lock" unless version
+
+            system('gem', 'install', gem_name, '-v', version, '--no-document') || exit($?.exitstatus)
+          end
+          RUBY
 
       - name: Run RuboCop
-        run: bundle exec rubocop
+        run: rubocop
