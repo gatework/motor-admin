@@ -1,10 +1,16 @@
+<% attachments_root = Pathname(ENV['WORKDIR'].to_s.empty? ? Rails.root : ENV['WORKDIR']).join('motor-admin-attachments') %>
+
 local:
   service: Disk
-  root: <%= ENV['WORKDIR'] %>motor-admin-attachments
+  root: <%= attachments_root %>
+
+test:
+  service: Disk
+  root: <%= Rails.root.join('tmp/storage') %>
 
 disk:
   service: Disk
-  root: <%= ENV['WORKDIR'] %>motor-admin-attachments
+  root: <%= attachments_root %>
 
 aws_s3:
   service: S3

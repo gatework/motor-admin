@@ -8,6 +8,7 @@ require "rbconfig"
 # - lib/install/bin/diff-bundler-config
 # - spec/dummy/bin/shakapacker-config
 # - package/configExporter/cli.ts (createBinStub).
+# 定位 Rails 应用根目录，缺少 Gemfile 时回退当前目录。
 def shakapacker_app_root
   candidate = File.expand_path("..", __dir__)
   return candidate if File.exist?(File.join(candidate, "Gemfile"))
@@ -17,6 +18,7 @@ def shakapacker_app_root
   Dir.pwd
 end
 
+# 根据平台可执行文件扩展名生成候选命令名。
 def shakapacker_executable_candidates(executable)
   extensions = [
     RbConfig::CONFIG["EXEEXT"],
@@ -27,6 +29,7 @@ def shakapacker_executable_candidates(executable)
   ([executable] + extensions.map { |extension| "#{executable}#{extension}" }).uniq
 end
 
+# 在 PATH 中查找可执行文件。
 def shakapacker_find_executable(executable)
   ENV.fetch("PATH", "").split(File::PATH_SEPARATOR).each do |path|
     shakapacker_executable_candidates(executable).each do |candidate|
@@ -38,6 +41,7 @@ def shakapacker_find_executable(executable)
   nil
 end
 
+# 返回 Node.js 可执行文件路径，找不到时输出错误并退出。
 def shakapacker_node_binary
   node_bin = shakapacker_find_executable("node")
   return node_bin if node_bin
@@ -47,6 +51,7 @@ def shakapacker_node_binary
   exit 1
 end
 
+# 根据 Rails 环境推导 Node 构建环境。
 def shakapacker_node_env
   %w[development test].include?(ENV["RAILS_ENV"]) ? "development" : "production"
 end

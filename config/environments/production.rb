@@ -23,6 +23,9 @@ Rails.application.configure do
   # Disable serving static files from the `/public` folder by default since
   # Apache or NGINX already handles this.
   config.public_file_server.enabled = true
+  config.public_file_server.headers = {
+    'cache-control' => "public, max-age=#{1.year.to_i}"
+  }
 
   # Compress CSS using a preprocessor.
   # config.assets.css_compressor = :sass
@@ -49,11 +52,12 @@ Rails.application.configure do
   # config.action_cable.allowed_request_origins = [ "http://example.com", /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = [ENV['FORCE_SSL'], ENV['MOTOR_FORCE_SSL']].any?('true') || ENV['SSL_KEY_PATH'].present?
+  config.force_ssl = MotorAdmin::RuntimeConfig.force_ssl?
+  config.assume_ssl = config.force_ssl
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
-  config.log_level = ENV.fetch('LOG_LEVEL', 'info').to_sym
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', ENV.fetch('LOG_LEVEL', 'info'))
 
   # Prepend all log lines with the following tags.
   config.log_tags = [:request_id]
@@ -78,13 +82,8 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  if ENV['HOST'].present?
-    routes.default_url_options = {
-      protocol: config.force_ssl ? 'https' : 'http',
-      host: ENV['HOST'],
-      port: ENV['PORT'].to_i.in?([80, 433]) ? nil : ENV['PORT']
-    }
-  end
+  default_url_options = MotorAdmin::RuntimeConfig.default_url_options(force_ssl: config.force_ssl)
+  routes.default_url_options = default_url_options if default_url_options.any?
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = Logger::Formatter.new
@@ -103,25 +102,22 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [:id]
 
-  config.secret_key_base = ENV['SECRET_KEY_BASE'].to_s
+  config.secret_key_base = MotorAdmin::RuntimeConfig.secret_key_base
 
-  config.active_record.encryption = {
-    primary_key: ENV['SECRET_KEY_BASE'].to_s[0..31].to_s,
-    deterministic_key: ENV['SECRET_KEY_BASE'].to_s[32..63].to_s,
-    key_derivation_salt: ENV['SECRET_KEY_BASE'].to_s
-  }
+  config.active_record.encryption = MotorAdmin::RuntimeConfig.active_record_encryption_config
 
   config.lograge.enabled = true
   config.lograge.formatter = ->(data) { data.except(:controller, :action, :format, :location).to_json }
   config.lograge.base_controller_class = ['ActionController::API', 'ActionController::Base']
   config.lograge.ignore_custom = ->(event) { event.name.end_with?('.action_cable') }
+  # 规范化日志路径，去掉后台挂载前缀，方便不同 BASE_PATH 部署下聚合查询。
   config.lograge.before_format = lambda do |data, payload|
     if payload[:request]
       data[:method] ||= payload[:request].request_method
       data[:path] ||= payload[:request].filtered_path
     end
 
-    base_path = ENV.fetch('BASE_PATH', '/admin').presence || '/admin'
+    base_path = MotorAdmin::RuntimeConfig.base_path
     path = data[:path].to_s
 
     if base_path != '/' && (path == base_path || path.start_with?("#{base_path}/"))
@@ -131,6 +127,7 @@ Rails.application.configure do
     data
   end
 
+  # 追加请求 IP 和当前管理员 id；REST 控制器需保持 current_admin_user 为 public。
   config.lograge.custom_payload do |controller|
     {
       fwd: controller.request.ip,

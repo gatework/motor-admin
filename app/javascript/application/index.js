@@ -1,0 +1,55 @@
+import { createApp } from 'vue'
+
+import App from './app'
+import router from './router'
+
+import DynamicModal from 'view3/src/plugins/dynamic-modal'
+import DynamicDrawer from 'view3/src/plugins/dynamic-drawer'
+import DynamicDialog from 'view3/src/plugins/dynamic-dialog'
+import DynamicMessage from 'view3/src/plugins/dynamic-message'
+
+import Button from 'view3/src/components/button'
+import Card from 'view3/src/components/card'
+import Icon from 'view3/src/components/icon'
+import Input from 'view3/src/components/input'
+import Form from 'view3/src/components/form'
+import FormItem from 'view3/src/components/form-item'
+import Radio from 'view3/src/components/radio'
+import RadioGroup from 'view3/src/components/radio-group'
+import Spin from 'view3/src/components/spin'
+import Divider from 'view3/src/components/divider'
+import Badge from 'view3/src/components/badge'
+import Dropdown from './components/dropdown'
+import DropdownMenu from './components/dropdown_menu'
+import DropdownItem from './components/dropdown_item'
+import MinimalSelect from './components/minimal_select'
+
+// 创建设置页 Vue 应用实例。
+const app = createApp(App)
+
+// 注册 View3 和本地基础组件，供设置页所有子组件直接使用。
+app.component('VButton', Button)
+app.component('Icon', Icon)
+app.component('Card', Card)
+app.component('VInput', Input)
+app.component('VForm', Form)
+app.component('FormItem', FormItem)
+app.component('Spin', Spin)
+app.component('Radio', Radio)
+app.component('RadioGroup', RadioGroup)
+app.component('Divider', Divider)
+app.component('Dropdown', Dropdown)
+app.component('Badge', Badge)
+app.component('DropdownMenu', DropdownMenu)
+app.component('DropdownItem', DropdownItem)
+app.component('MSelect', MinimalSelect)
+
+// 挂载路由和全局动态弹窗/抽屉/对话框/消息插件。
+app.use(router)
+
+app.use(DynamicModal)
+app.use(DynamicDrawer)
+app.use(DynamicDialog)
+app.use(DynamicMessage)
+
+export default app

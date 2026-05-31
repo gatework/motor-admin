@@ -1,3 +1,4 @@
+// Stylelint 配置：基于 Sass 规则集并放宽当前组件库样式需要的限制。
 module.exports = {
   extends: ['stylelint-config-sass-guidelines'],
   plugins: ['stylelint-scss'],

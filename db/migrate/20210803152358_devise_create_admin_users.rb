@@ -2,6 +2,7 @@
 
 class DeviseCreateAdminUsers < ActiveRecord::Migration[7.0]
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  # 创建 Devise 管理员表和登录、找回密码、锁定相关索引。
   def change
     create_table :motor_admin_users, if_not_exists: true do |t|
       ## Database authenticatable

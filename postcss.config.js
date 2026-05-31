@@ -1,3 +1,4 @@
+// PostCSS 配置：支持 @import 和现代 CSS 转换。
 module.exports = {
   plugins: [
     require('postcss-import'),

@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
+# 后台任务基类，统一承载全局 Active Job 配置。
 class ApplicationJob < ActiveJob::Base
-  # Automatically retry jobs that encountered a deadlock
-  # retry_on ActiveRecord::Deadlocked
-
-  # Most jobs are safe to ignore if the underlying records are no longer available
-  # discard_on ActiveJob::DeserializationError
 end

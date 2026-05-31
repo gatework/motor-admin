@@ -1,8 +1,11 @@
 <% database_type = ENV.fetch('DATABASE_TYPE', 'sqlite') %>
+<% database_pool = ENV.fetch('RAILS_MAX_THREADS', 5) %>
+<% workdir = Pathname(ENV['WORKDIR'].to_s.empty? ? Rails.root : ENV['WORKDIR']) %>
 <% if database_type == 'mysql' %>
 common: &common
   adapter: mysql2
   encoding: utf8mb4
+  pool: <%= database_pool %>
   username: root
   password:
   host: 127.0.0.1
@@ -11,7 +14,7 @@ common: &common
 common: &common
   adapter: postgresql
   encoding: unicode
-  pool: 10
+  pool: <%= database_pool %>
   timeout: 5000
   min_messages: warning
   username: postgres
@@ -20,6 +23,7 @@ common: &common
 <% else %>
 common: &common
   adapter: sqlite3
+  pool: <%= database_pool %>
   timeout: 30000
 <% end %>
 
@@ -46,10 +50,10 @@ test:
 production:
 <% if ENV['DATABASE_URL'].to_s.empty? %>
   adapter: sqlite3
+  pool: <%= database_pool %>
   timeout: 30000
-  database: <%= ENV['WORKDIR'] %>motor-admin.sqlite3
+  database: <%= workdir.join('motor-admin.sqlite3') %>
 <% else %>
-  adapter: postgresql
-  pool: 10
+  pool: <%= database_pool %>
   url: <%= ENV['DATABASE_URL'] %>
 <% end %>

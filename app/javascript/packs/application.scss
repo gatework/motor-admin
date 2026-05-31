@@ -1,0 +1,67 @@
+@use 'application/styles/variables' as app;
+// 统一引入 View3 样式，并覆盖为当前后台设置页主题变量。
+@use 'view3/src/styles/core' as view3 with (
+  $primary-color: app.$primary-color,
+  $link-color: app.$link-color,
+  $body-background: app.$body-background,
+  $layout-body-background: app.$layout-body-background,
+  $font-size-base: app.$font-size-base,
+  $font-size-small: app.$font-size-small,
+  $font-size-large: app.$font-size-large,
+  $border-color-base: app.$border-color-base,
+  $spin-dot-size-small: app.$spin-dot-size-small,
+  $spin-dot-size: app.$spin-dot-size,
+  $spin-dot-size-large: app.$spin-dot-size-large
+);
+
+// 按需引入设置页使用到的 View3 基础样式和组件样式。
+@use 'view3/src/styles/common/icons';
+@use 'view3/src/styles/common/base';
+@use 'view3/src/styles/animation';
+
+@use 'view3/src/styles/components/button';
+@use 'view3/src/styles/components/card';
+@use 'view3/src/styles/components/alert';
+@use 'view3/src/styles/components/input';
+@use 'view3/src/styles/components/form';
+@use 'view3/src/styles/components/spin';
+@use 'view3/src/styles/components/tabs';
+@use 'view3/src/styles/components/message';
+@use 'view3/src/styles/components/modal';
+@use 'view3/src/styles/components/dropdown';
+@use 'view3/src/styles/components/tag';
+@use 'view3/src/styles/components/radio';
+@use 'view3/src/styles/components/divider';
+@use 'view3/src/styles/components/switch';
+@use 'view3/src/styles/components/select';
+@use 'view3/src/styles/components/select-dropdown';
+@use 'view3/src/styles/components/drawer';
+@use 'view3/src/styles/components/checkbox';
+@use 'view3/src/styles/components/badge';
+@use 'view3/src/styles/components/color-picker';
+
+// 降低 loading 遮罩不透明度，避免遮住表单上下文。
+.#{view3.$spin-prefix-cls} {
+  &-fix {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+// 移动端抽屉占满屏幕，避免表单横向挤压。
+@media (max-width: app.$breakpoint-md) {
+  .ivu-drawer {
+    width: 100% !important;
+  }
+}
+
+// 角色编辑抽屉底部有 sticky 操作区，正文不再保留额外底部留白。
+.drawer-no-bottom-padding {
+  .ivu-drawer-body {
+    padding-bottom: 0;
+  }
+}
+
+// 登录、初始化等认证页面使用统一窄容器。
+.auth-container {
+  max-width: 650px;
+}

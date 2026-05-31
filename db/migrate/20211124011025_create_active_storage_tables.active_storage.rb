@@ -3,6 +3,7 @@
 # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
 # This migration comes from active_storage (originally 20170806125915)
 class CreateActiveStorageTables < ActiveRecord::Migration[5.2]
+  # 创建 Active Storage 文件、附件和变体记录表。
   def change
     # Use Active Record's configured type for primary and foreign keys
     primary_key_type, foreign_key_type = primary_and_foreign_key_types
@@ -52,6 +53,7 @@ class CreateActiveStorageTables < ActiveRecord::Migration[5.2]
 
   private
 
+  # 按 Rails 生成器配置返回主键和外键类型，兼容不同数据库主键策略。
   def primary_and_foreign_key_types
     config = Rails.configuration.generators
     setting = config.options[config.orm][:primary_key_type]

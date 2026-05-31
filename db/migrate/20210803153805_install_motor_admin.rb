@@ -2,6 +2,7 @@
 
 # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Rails/CreateTableWithTimestamps, Metrics/ClassLength
 class InstallMotorAdmin < ActiveRecord::Migration[7.0]
+  # 安装 Motor Admin 核心表，并写入默认示例配置、查询、看板和表单。
   def self.up
     create_table :motor_queries, if_not_exists: true do |t|
       t.column :name, :string, null: false
@@ -203,6 +204,7 @@ class InstallMotorAdmin < ActiveRecord::Migration[7.0]
     )
   end
 
+  # 回滚 Motor Admin 核心表。
   def self.down
     drop_table :motor_audits
     drop_table :motor_alert_locks

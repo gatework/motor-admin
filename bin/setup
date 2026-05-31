@@ -4,6 +4,7 @@ require "fileutils"
 # path to your application root.
 APP_ROOT = File.expand_path("..", __dir__)
 
+# 执行系统命令，失败时立即终止 setup 流程。
 def system!(*args)
   system(*args) || abort("\n== Command #{args} failed ==")
 end

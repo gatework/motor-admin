@@ -2,6 +2,7 @@
 
 # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Naming/MethodName, Naming/VariableName
 class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
+  # 返回迁移内临时 API 配置模型，避免依赖运行时业务模型版本。
   def _MotorApiConfig
     @_MotorApiConfig ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_api_configs'
@@ -16,6 +17,7 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
     end
   end
 
+  # 返回迁移内临时表单模型，用于迁移旧表单 API 地址配置。
   def _MotorForm
     @_MotorForm ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_forms'
@@ -24,6 +26,7 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
     end
   end
 
+  # 返回迁移内临时查询模型，用于迁移旧查询 API 地址配置。
   def _MotorQuery
     @_MotorQuery ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_queries'
@@ -32,6 +35,7 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
     end
   end
 
+  # 创建 API 配置表，并把旧表单和查询中的完整 API URL 拆分到配置表。
   def up
     create_table :motor_api_configs, if_not_exists: true do |t|
       t.column :name, :string, null: false
@@ -90,6 +94,7 @@ class InstallMotorApiConfigs < ActiveRecord::Migration[7.0]
     _MotorApiConfig.find_or_create_by!(name: 'origin', url: '/')
   end
 
+  # 移除 API 配置表和表单上的配置名称字段。
   def down
     remove_column :motor_forms, :api_config_name
     drop_table :motor_api_configs

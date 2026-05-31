@@ -1,30 +1,17 @@
 # frozen_string_literal: true
 
+# 管理后台模拟登录入口，校验一次性签名链接后切换为目标用户。
 class ImpersonateController < ApplicationController
-  TOKEN_TTL = 1.hour
-  SHA1_LENGTH = 40
-
   skip_before_action :authenticate_admin_user!
 
+  # 校验模拟登录 token，成功后切换 session 并跳转后台首页。
   def show
-    sha1, payload = params.expect(:token).unpack("a#{SHA1_LENGTH}a*")
-    user_id, timestamp = JSON.parse(Base64.decode64([payload].pack('h*')))
-
-    return head :forbidden if valid_token?(sha1, user_id, timestamp)
-    return head :forbidden if Time.current - Time.zone.at(timestamp) > TOKEN_TTL
-
-    user = Motor::AdminUser.find_by(id: user_id)
+    user = Motor::AdminUser.from_impersonate_token(params.expect(:token))
 
     return head :forbidden unless user
 
     sign_in(user)
 
     redirect_to motor_admin_path
-  end
-
-  private
-
-  def valid_token?(sha1, user_id, timestamp)
-    sha1 != Digest::SHA1.hexdigest(ENV['SECRET_KEY_BASE'].to_s + user_id.to_s + timestamp.to_s)
   end
 end

@@ -36,8 +36,8 @@
     "build:dev": "./bin/shakapacker",
     "build:test": "RAILS_ENV=test NODE_ENV=test ./bin/shakapacker",
     "build:prod": "RAILS_ENV=production NODE_ENV=production ./bin/shakapacker",
-    "eslint": "eslint \"app/packs/**/*.{js,vue}\" --fix",
-    "stylelint": "stylelint \"app/packs/**/*.{scss,css}\" --fix"
+    "eslint": "eslint \"app/javascript/**/*.{js,vue}\" --fix",
+    "stylelint": "stylelint \"app/javascript/**/*.{scss,css}\" --fix"
   },
   "version": "0.1.0",
   "devDependencies": {

@@ -2,6 +2,7 @@
 
 # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/BlockLength, Naming/MethodName, Naming/VariableName
 class UpgradeMotorApiActions < ActiveRecord::Migration[7.0]
+  # 返回迁移内临时 API 配置模型，供旧动作生成表单时复用配置。
   def _MotorApiConfig
     @_MotorApiConfig ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_api_configs'
@@ -16,6 +17,7 @@ class UpgradeMotorApiActions < ActiveRecord::Migration[7.0]
     end
   end
 
+  # 返回迁移内临时表单模型，用于承载由旧 API 动作转换出的表单。
   def _MotorForm
     @_MotorForm ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_forms'
@@ -24,6 +26,7 @@ class UpgradeMotorApiActions < ActiveRecord::Migration[7.0]
     end
   end
 
+  # 返回迁移内临时资源模型，用于遍历旧资源动作配置。
   def _MotorResource
     @_MotorResource ||= Class.new(ActiveRecord::Base) do
       self.table_name = 'motor_resources'
@@ -32,6 +35,7 @@ class UpgradeMotorApiActions < ActiveRecord::Migration[7.0]
     end
   end
 
+  # 将资源里的旧 API 动作转换为表单动作，并生成对应表单和 API 配置。
   def up
     _MotorResource.find_each do |resource|
       resource.preferences.fetch(:actions, []).each do |action|
@@ -76,6 +80,7 @@ class UpgradeMotorApiActions < ActiveRecord::Migration[7.0]
     end
   end
 
+  # 旧动作转换不可逆，保留空回滚以兼容迁移接口。
   def down; end
 end
 # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/BlockLength, Naming/MethodName, Naming/VariableName

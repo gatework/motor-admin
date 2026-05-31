@@ -16,7 +16,7 @@ COPY ./bin/shakapacker ./bin/shakapacker
 COPY ./config/webpack ./config/webpack
 COPY ./config/shakapacker.yml ./config/shakapacker.yml
 COPY ./postcss.config.js ./babel.config.js ./
-COPY ./app/packs ./app/packs
+COPY ./app/javascript ./app/javascript
 
 RUN printf "%s\n" "source 'https://rubygems.org'" "gem 'shakapacker', '~> 10.1'" > Gemfile && \
     bundle install && \

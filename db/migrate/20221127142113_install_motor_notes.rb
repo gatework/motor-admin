@@ -2,6 +2,7 @@
 
 # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Rails/CreateTableWithTimestamps
 class InstallMotorNotes < ActiveRecord::Migration[7.0]
+  # 安装备注、标签、提醒和通知相关表。
   def self.up
     create_table :motor_notes, if_not_exists: true do |t|
       t.column :body, :text
@@ -76,6 +77,7 @@ class InstallMotorNotes < ActiveRecord::Migration[7.0]
     end
   end
 
+  # 回滚备注、标签、提醒和通知相关表。
   def self.down
     drop_table :motor_note_tag_tags
     drop_table :motor_note_tags

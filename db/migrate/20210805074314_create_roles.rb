@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class CreateRoles < ActiveRecord::Migration[7.0]
+  # 创建管理员角色表，保存角色名称和权限规则。
   def change
     create_table :motor_roles, if_not_exists: true do |t|
       t.string :name, null: false, index: { unique: true }

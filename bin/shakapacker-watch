@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
+# 输出 watcher 用法说明。
 show_help() {
   cat <<'HELP'
 Usage: bin/shakapacker-watch [OPTIONS]
@@ -35,6 +36,7 @@ child_pid=""
 shutdown_requested=""
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
+# 捕获退出信号并优雅终止子进程。
 cleanup() {
   shutdown_requested=1
   if [ -z "${child_pid}" ]; then
