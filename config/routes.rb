@@ -7,6 +7,9 @@ Rails.application.routes.draw do
 
   root to: redirect(base_path) unless base_path == '/'
 
+  get '/apple-touch-icon.png', to: redirect('/favicon.ico')
+  get '/apple-touch-icon-precomposed.png', to: redirect('/favicon.ico')
+
   devise_for :admin_users, class_name: 'Motor::AdminUser', path: base_path
 
   resources :impersonate, only: %i[show], param: 'token'
