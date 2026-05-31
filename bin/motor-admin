@@ -44,7 +44,7 @@ elsif ENV['SECRET_KEY_BASE'].to_s.empty?
   Dotenv.load(dotenv_filename)
 end
 
-ENV['RAILS_ENV'] = 'production'
+ENV['RAILS_ENV'] ||= 'production'
 
 %w[BASE_PATH DATABASE_URL SECRET_KEY_BASE HOST PORT SSL_CERT_PATH SSL_KEY_PATH SYNC_API_KEY
    SYNC_REMOTE_URL].each do |key|
