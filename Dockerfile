@@ -5,7 +5,7 @@ ENV NODE_ENV=production
 
 WORKDIR /opt
 
-RUN apk add --no-cache nodejs yarn git build-base python3 && \
+RUN apk add --no-cache nodejs yarn git build-base python3 yaml-dev && \
     gem install shakapacker
 
 COPY ./package.json ./yarn.lock ./
@@ -43,7 +43,7 @@ ENV BUNDLE_WITHOUT="development:test"
 
 WORKDIR /opt/motor-admin
 
-RUN apk add --no-cache freetds-dev sqlite-dev libpq-dev mariadb-dev vips build-base
+RUN apk add --no-cache freetds-dev sqlite-dev libpq-dev mariadb-dev vips build-base yaml-dev
 
 COPY ./Gemfile ./Gemfile.lock ./
 COPY ./vendor/motor-admin-pro/lib/motor/version.rb ./vendor/motor-admin-pro/lib/motor/version.rb
