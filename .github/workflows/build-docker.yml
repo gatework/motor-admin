@@ -42,7 +42,7 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            motoradmin/motoradmin
+            gatework/motoradmin
           tags: |
             type=semver,pattern={{version}}
 
