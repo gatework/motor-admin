@@ -15,8 +15,27 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
+
+      - name: Checkout submodules
+        env:
+          MOTOR_ADMIN_PRO_DEPLOY_KEY: ${{ secrets.MOTOR_ADMIN_PRO_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$MOTOR_ADMIN_PRO_DEPLOY_KEY" ]; then
+            echo "::error::MOTOR_ADMIN_PRO_DEPLOY_KEY is required to checkout vendor/motor-admin-pro"
+            exit 1
+          fi
+
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$MOTOR_ADMIN_PRO_DEPLOY_KEY" > ~/.ssh/motor-admin-pro
+          chmod 600 ~/.ssh/motor-admin-pro
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          git config --global core.sshCommand "ssh -i ~/.ssh/motor-admin-pro -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          git config --global url."git@github.com:gatework/motor-admin-pro.git".insteadOf "https://github.com/gatework/motor-admin-pro.git"
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --recursive
 
       - name: Docker meta
         id: meta
