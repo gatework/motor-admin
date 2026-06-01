@@ -5,20 +5,20 @@ ENV NODE_ENV=production
 
 WORKDIR /opt
 
-RUN apk add --no-cache nodejs yarn git build-base python3 yaml-dev && \
-    gem install shakapacker
+RUN apk add --no-cache nodejs yarn git build-base python3 yaml-dev
 
 COPY ./package.json ./yarn.lock ./
 
-RUN yarn install --network-timeout 1000000
+RUN yarn install --frozen-lockfile --network-timeout 1000000
 
 COPY ./bin/shakapacker ./bin/shakapacker
 COPY ./config/webpack ./config/webpack
 COPY ./config/shakapacker.yml ./config/shakapacker.yml
 COPY ./postcss.config.js ./babel.config.js ./
 COPY ./app/javascript ./app/javascript
+COPY ./Gemfile.lock ./Gemfile.lock
 
-RUN printf "%s\n" "source 'https://rubygems.org'" "gem 'shakapacker', '~> 10.1'" > Gemfile && \
+RUN ruby -e 'version = File.read("Gemfile.lock")[/^    shakapacker \(([^)]+)\)/, 1] or abort "Unable to find shakapacker in Gemfile.lock"; File.write("Gemfile", "source \"https://rubygems.org\"\ngem \"shakapacker\", \"#{version}\"\n")' && \
     bundle install && \
     ./bin/shakapacker
 
@@ -30,7 +30,7 @@ RUN apk add --no-cache nodejs yarn git build-base python3
 
 COPY ./vendor/motor-admin-pro/ui/package.json ./vendor/motor-admin-pro/ui/yarn.lock ./
 
-RUN yarn install --network-timeout 1000000
+RUN yarn install --frozen-lockfile --network-timeout 1000000
 
 COPY ./vendor/motor-admin-pro/ui ./
 
