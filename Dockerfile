@@ -1,4 +1,4 @@
-FROM ruby:4.0.5-alpine AS shakapacker
+FROM --platform=$BUILDPLATFORM ruby:4.0.5-alpine AS shakapacker
 
 ENV RAILS_ENV=production
 ENV NODE_ENV=production
@@ -22,7 +22,7 @@ RUN printf "%s\n" "source 'https://rubygems.org'" "gem 'shakapacker', '~> 10.1'"
     bundle install && \
     ./bin/shakapacker
 
-FROM ruby:4.0.5-alpine AS assets
+FROM --platform=$BUILDPLATFORM ruby:4.0.5-alpine AS assets
 
 WORKDIR /opt/vendor/motor-admin-pro/ui
 
